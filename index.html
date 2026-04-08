@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Quản lý Bệnh nhân</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <h4>Quản lý BN</h4>
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link active" href="index.html"><i class="fas fa-tachometer-alt"></i> Trang chủ</a>
+   
+            <a class="nav-link" href="patients.html"><i class="fas fa-hospital-user"></i> Bệnh nhân</a>
+            <a class="nav-link" href="prescriptions.html"><i class="fas fa-prescription-bottle-alt"></i> Đơn thuốc</a>
+            <a class="nav-link" href="drugs.html"><i class="fas fa-pills"></i> Tủ thuốc</a>
+          
+            <a class="nav-link" href="reports.html"><i class="fas fa-chart-line"></i> Báo cáo</a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <button class="btn btn-link" id="toggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="ms-auto d-flex align-items-center">
+                <div class="dropdown">
+                    <button class="btn btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle"></i> BS. Nguyễn Nam
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Cài đặt</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="container-fluid p-4">
+            <h2 class="mb-4">Bảng điều khiển</h2>
+            
+            <!-- Statistics Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="card stat-card bg-primary text-white">
+                        <div class="card-body">
+                            <h5>Tổng bệnh nhân</h5>
+                            <h2 class="mb-0">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card bg-success text-white">
+                        <div class="card-body">
+                            <h5>Lượt khám tháng này</h5>
+                            <h2 class="mb-0">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card bg-warning text-white">
+                        <div class="card-body">
+                            <h5>Đơn thuốc</h5>
+                            <h2 class="mb-0">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card bg-danger text-white">
+                        <div class="card-body">
+                            <h5>Thuốc sắp hết</h5>
+                            <h2 class="mb-0">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Thống kê bệnh nhân</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="patientChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Lịch hẹn hôm nay</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">Chưa có lịch hẹn</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

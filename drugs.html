@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tủ thuốc - Hệ thống Quản lý</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <h4>Quản lý BN</h4>
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link" href="index.html"><i class="fas fa-tachometer-alt"></i> Trang chủ</a>
+            <a class="nav-link" href="patients.html"><i class="fas fa-hospital-user"></i> Bệnh nhân</a>
+            <a class="nav-link" href="prescriptions.html"><i class="fas fa-prescription-bottle-alt"></i> Đơn thuốc</a>
+            <a class="nav-link active" href="drugs.html"><i class="fas fa-pills"></i> Tủ thuốc</a>
+            <a class="nav-link" href="reports.html"><i class="fas fa-chart-line"></i> Báo cáo</a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <button class="btn btn-link" id="toggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="ms-auto d-flex align-items-center">
+                <div class="dropdown">
+                    <button class="btn btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle"></i> BS. Nguyễn Nam
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Cài đặt</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="container-fluid p-4">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="index.html">Trang chủ</a></li>
+                    <li class="breadcrumb-item">Thuốc</li>
+                    <li class="breadcrumb-item active">Tủ thuốc</li>
+                </ol>
+            </nav>
+
+            <!-- Drug List Card -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-1">Tủ thuốc</h3>
+                        <p class="text-muted mb-0 small">Quản lý thuốc trong tủ thuốc của bạn</p>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#importDrugsModal">
+                            <i class="fas fa-file-import"></i> Nhập từ Excel
+                        </button>
+                        <button class="btn btn-sm btn-info" onclick="exportDrugs()">
+                            <i class="fas fa-file-export"></i> Xuất danh sách
+                        </button>
+                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addDrugModal">
+                            <i class="fas fa-plus"></i> Thêm thuốc mới
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table id="drugTable" class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Số đăng ký</th>
+                                <th>Tên thuốc</th>
+                                <th>Hoạt chất</th>
+                                <th>Hàm lượng</th>
+                                <th>Đường dùng</th>
+                                <th>Số lượng</th>
+                                <th>Ghi chú</th>
+                                <th class="text-end">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Drug Modal -->
+    <div class="modal fade" id="addDrugModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm thuốc mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addDrugForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Số đăng ký</label>
+                                <input type="text" class="form-control" name="registration_number" placeholder="VD-12345-18">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tên thuốc <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="drug_name" placeholder="Paracetamol" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Hoạt chất <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="active_ingredient" placeholder="Paracetamol" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Hàm lượng <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="concentration" placeholder="500mg" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Đường dùng <span class="text-danger">*</span></label>
+                                <select class="form-select" name="route" required>
+                                    <option value="">-- Chọn đường dùng --</option>
+                                    <option value="Uống">Uống</option>
+                                    <option value="Tiêm">Tiêm</option>
+                                    <option value="Bôi">Bôi</option>
+                                    <option value="Nhỏ mắt">Nhỏ mắt</option>
+                                    <option value="Nhỏ tai">Nhỏ tai</option>
+                                    <option value="Xịt mũi">Xịt mũi</option>
+                                    <option value="Đặt">Đặt</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Số lượng <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" name="quantity" placeholder="100" min="0" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Đơn vị</label>
+                                <select class="form-select" name="unit">
+                                    <option value="Viên">Viên</option>
+                                    <option value="Vỉ">Vỉ</option>
+                                    <option value="Hộp">Hộp</option>
+                                    <option value="Chai">Chai</option>
+                                    <option value="Ống">Ống</option>
+                                    <option value="Tuýp">Tuýp</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Giá (VNĐ)</label>
+                                <input type="number" class="form-control" name="price" placeholder="50000" min="0">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ghi chú</label>
+                            <textarea class="form-control" name="notes" rows="2" placeholder="Ghi chú thêm về thuốc..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" onclick="saveDrug()">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Drugs Modal -->
+    <div class="modal fade" id="importDrugsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nhập thuốc từ Excel</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Download Template -->
+                    <div class="mb-4">
+                        <button class="btn btn-secondary btn-sm" onclick="downloadTemplate()">
+                            <i class="fas fa-download"></i> Tải mẫu Excel
+                        </button>
+                    </div>
+
+                    <!-- Warning -->
+                    <div class="alert alert-warning d-flex align-items-center mb-4">
+                        <i class="fas fa-exclamation-triangle me-3 fs-3"></i>
+                        <div>
+                            <h6 class="mb-1">Các trường bắt buộc</h6>
+                            <small>Số đăng ký, Tên thuốc, Hoạt chất, Hàm lượng, Đường dùng, Số lượng là các trường bắt buộc phải nhập.</small>
+                        </div>
+                    </div>
+
+                    <!-- File Upload -->
+                    <form id="drugImportForm">
+                        <div class="mb-3">
+                            <label class="form-label">Chọn file Excel</label>
+                            <input type="file" class="form-control" id="excelFile" accept=".xlsx,.xls">
+                            <div class="form-text">Định dạng hỗ trợ: .xlsx, .xls</div>
+                        </div>
+                    </form>
+
+                    <!-- Progress -->
+                    <div id="importProgress" class="d-none">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex-grow-1 me-3">
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                         role="progressbar" 
+                                         id="progressBar"
+                                         style="width: 0%">0%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="importStatus" class="alert alert-info"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="startImportBtn" onclick="startImport()">
+                        Nhập dữ liệu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="script.js"></script>
+    <script src="drugs.js"></script>
+</body>
+</html>
