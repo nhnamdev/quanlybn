@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,21 +12,201 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <div class="logo">
-            <h4>Quản lý BN</h4>
+        <div class="sidebar-logo">
+            <a href="index.html" class="logo-link">
+                <img alt="Logo" src="/logoBN.png" class="logo-img">
+            </a>
+            <button class="btn-toggle-sidebar" id="toggleSidebarBtn" title="Minimize sidebar">
+                <i class="fas fa-chevron-left"></i>
+            </button>
         </div>
-        <nav class="nav flex-column">
-            <a class="nav-link" href="index.html"><i class="fas fa-tachometer-alt"></i> Trang chủ</a>
 
-            <a class="nav-link" href="patients.html"><i class="fas fa-hospital-user"></i> Bệnh nhân</a>
-            <a class="nav-link active" href="prescriptions.html"><i class="fas fa-prescription-bottle-alt"></i> Đơn thuốc</a>
-            <a class="nav-link" href="drugs.html"><i class="fas fa-pills"></i> Tủ thuốc</a>
-         
-            <a class="nav-link" href="reports.html"><i class="fas fa-chart-line"></i> Báo cáo</a>
-        </nav>
+        <div class="sidebar-menu">
+            <div class="menu-scroll">
+                <!-- Main menu -->
+                <div class="menu-group">
+                    <div class="menu-item">
+                        <a class="menu-link" href="index.html" title="Trang chủ">
+                            <span class="menu-icon"><i class="fas fa-tachometer-alt"></i></span>
+                            <span class="menu-title">Trang chủ</span>
+                        </a>
+                    </div>
+                    <div class="menu-item">
+                        <a class="menu-link" href="#" title="Lịch hẹn">
+                            <span class="menu-icon"><i class="fas fa-calendar-alt"></i></span>
+                            <span class="menu-title">Lịch hẹn</span>
+                        </a>
+                    </div>
+                    <div class="menu-item">
+                        <a class="menu-link" href="#" title="Lịch làm việc">
+                            <span class="menu-icon"><i class="fas fa-business-time"></i></span>
+                            <span class="menu-title">Lịch làm việc</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Section title: CHỨC NĂNG -->
+                <div class="menu-divider">
+                    <span class="section-title">Chức năng</span>
+                </div>
+
+                <!-- Bệnh Nhân -->
+                <div class="menu-item menu-accordion">
+                    <a class="menu-link" href="javascript:void(0)" data-toggle="menu-benhnan">
+                        <span class="menu-icon"><i class="fas fa-hospital-user"></i></span>
+                        <span class="menu-title">Bệnh Nhân</span>
+                        <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+                    </a>
+                    <div class="menu-sub" id="menu-benhnan">
+                        <div class="menu-item">
+                            <a class="menu-link" href="patients.html" title="Danh sách Bệnh Nhân">
+                                <span class="menu-icon"><i class="fas fa-list"></i></span>
+                                <span class="menu-title">Danh sách Bệnh Nhân</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <a class="menu-link" href="#" title="Thêm Bệnh Nhân mới">
+                                <span class="menu-icon"><i class="fas fa-user-plus"></i></span>
+                                <span class="menu-title">Thêm Bệnh Nhân mới</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thuốc -->
+                <div class="menu-item menu-accordion active">
+                    <a class="menu-link" href="javascript:void(0)" data-toggle="menu-thuoc">
+                        <span class="menu-icon"><i class="fas fa-prescription-bottle-alt"></i></span>
+                        <span class="menu-title">Thuốc</span>
+                        <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+                    </a>
+                    <div class="menu-sub" id="menu-thuoc">
+                        <div class="menu-item">
+                            <a class="menu-link active" href="prescriptions.html" title="Đơn thuốc">
+                                <span class="menu-icon"><i class="fas fa-file-prescription"></i></span>
+                                <span class="menu-title">Đơn thuốc</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <a class="menu-link" href="drugs.html" title="Tủ thuốc">
+                                <span class="menu-icon"><i class="fas fa-pills"></i></span>
+                                <span class="menu-title">Tủ thuốc</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cận lâm sàng -->
+                <div class="menu-item menu-accordion">
+                    <a class="menu-link" href="javascript:void(0)" data-toggle="menu-canlamsang">
+                        <span class="menu-icon"><i class="fas fa-microscope"></i></span>
+                        <span class="menu-title">Cận lâm sàng</span>
+                        <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+                    </a>
+                    <div class="menu-sub" id="menu-canlamsang">
+                        <div class="menu-item">
+                            <a class="menu-link" href="#" title="Hóa sinh">
+                                <span class="menu-icon"><i class="fas fa-vials"></i></span>
+                                <span class="menu-title">Hóa sinh</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <a class="menu-link" href="#" title="Chẩn đoán hình ảnh">
+                                <span class="menu-icon"><i class="fas fa-x-ray"></i></span>
+                                <span class="menu-title">Chẩn đoán hình ảnh</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Báo cáo & Hóa đơn -->
+                <div class="menu-item menu-accordion">
+                    <a class="menu-link" href="javascript:void(0)" data-toggle="menu-baocao">
+                        <span class="menu-icon"><i class="fas fa-chart-line"></i></span>
+                        <span class="menu-title">Báo cáo &amp; Hóa đơn</span>
+                        <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+                    </a>
+                    <div class="menu-sub" id="menu-baocao">
+                        <div class="menu-item">
+                            <a class="menu-link" href="reports.html" title="Báo cáo khám bệnh">
+                                <span class="menu-icon"><i class="fas fa-copy"></i></span>
+                                <span class="menu-title">Báo cáo khám bệnh</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tiện ích -->
+                <div class="menu-item menu-accordion">
+                    <a class="menu-link" href="javascript:void(0)" data-toggle="menu-tienich">
+                        <span class="menu-icon"><i class="fas fa-toolbox"></i></span>
+                        <span class="menu-title">Tiện ích</span>
+                        <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+                    </a>
+                    <div class="menu-sub" id="menu-tienich">
+                        <div class="menu-item">
+                            <a class="menu-link" href="#">
+                                <span class="menu-icon"><i class="fas fa-robot"></i></span>
+                                <span class="menu-title">Chatbot Hỗ Trợ</span>
+                                <span class="badge badge-ai">AI</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quản lý -->
+                <div class="menu-item menu-accordion">
+                    <a class="menu-link" href="javascript:void(0)" data-toggle="menu-quanly">
+                        <span class="menu-icon"><i class="fas fa-cogs"></i></span>
+                        <span class="menu-title">Quản lý</span>
+                        <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+                    </a>
+                    <div class="menu-sub" id="menu-quanly">
+                        <div class="menu-item">
+                            <a class="menu-link" href="#">
+                                <span class="menu-icon"><i class="fas fa-user-cog"></i></span>
+                                <span class="menu-title">Cài đặt tài khoản</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="menu-divider"></div>
+
+                <!-- Footer items -->
+                <div class="menu-group">
+                    <div class="menu-item">
+                        <a class="menu-link" href="#">
+                            <span class="menu-icon"><i class="fas fa-donate"></i></span>
+                            <span class="menu-title">Ủng hộ chúng tôi</span>
+                        </a>
+                    </div>
+                    <div class="menu-item">
+                        <a class="menu-link" href="#">
+                            <span class="menu-icon"><i class="fas fa-info-circle"></i></span>
+                            <span class="menu-title">Hướng dẫn sử dụng</span>
+                        </a>
+                    </div>
+                    <div class="menu-item">
+                        <a class="menu-link" href="#">
+                            <span class="menu-icon"><i class="fas fa-users"></i></span>
+                            <span class="menu-title">Về chúng tôi</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="#" class="btn btn-contact" title="Liên hệ &amp; Góp Ý">
+                <span class="btn-label">Liên hệ &amp; Góp Ý</span>
+            </a>
+        </div>
     </div>
 
     <!-- Main Content -->
@@ -42,7 +223,9 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Cài đặt</a></li>
-                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
                         <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
                     </ul>
                 </div>
@@ -75,11 +258,7 @@
                     <!-- Filter Row -->
                     <div class="row mb-3">
                         <div class="col-md-3">
-                            <input type="text" 
-                                   class="form-control form-control-sm" 
-                                   id="dateRangePicker" 
-                                   placeholder="Chọn khoảng thời gian"
-                                   readonly>
+                            <input type="text" class="form-control form-control-sm" id="dateRangePicker" placeholder="Chọn khoảng thời gian" readonly>
                         </div>
                         <div class="col-md-9 text-end">
                             <div class="btn-group btn-group-sm" role="group">
@@ -218,4 +397,5 @@
     <script src="script.js"></script>
     <script src="prescriptions.js"></script>
 </body>
+
 </html>

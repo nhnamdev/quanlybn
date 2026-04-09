@@ -1,36 +1,122 @@
 // Toggle Sidebar
-document.getElementById('toggleSidebar').addEventListener('click', function() {
+function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.querySelector('.main-content');
-    
-    sidebar.classList.toggle('collapsed');
-    mainContent.classList.toggle('expanded');
+    const wrapper = document.querySelector('.wrapper');
+    const isMobile = window.innerWidth <= 991;
+
+    if (sidebar) {
+        if (isMobile) {
+            sidebar.classList.toggle('show');
+            sidebar.classList.remove('collapsed');
+        } else {
+            sidebar.classList.toggle('collapsed');
+            sidebar.classList.remove('show');
+        }
+    }
+    if (mainContent) {
+        mainContent.classList.toggle('expanded');
+    }
+    if (wrapper) {
+        wrapper.classList.toggle('expanded');
+    }
+}
+
+function syncSidebarState() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.querySelector('.main-content');
+    const wrapper = document.querySelector('.wrapper');
+    if (!sidebar) return;
+
+    if (window.innerWidth > 991) {
+        sidebar.classList.remove('show', 'active', 'collapsed');
+        mainContent ? .classList.remove('expanded');
+        wrapper ? .classList.remove('expanded');
+    } else {
+        sidebar.classList.remove('collapsed');
+    }
+}
+
+document.getElementById('toggleSidebar') ? .addEventListener('click', toggleSidebar);
+
+// Toggle Sidebar Button (Minimize)
+document.getElementById('toggleSidebarBtn') ? .addEventListener('click', function(e) {
+    e.preventDefault();
+    toggleSidebar();
 });
 
-// Chart.js - Patient Statistics
-const ctx = document.getElementById('patientChart');
-if (ctx) {
-    new Chart(ctx, {
+// Mobile Toggle
+document.getElementById('kt_aside_mobile_toggle') ? .addEventListener('click', toggleSidebar);
+
+window.addEventListener('resize', syncSidebarState);
+document.addEventListener('DOMContentLoaded', syncSidebarState);
+
+// Menu Accordion Toggle
+document.querySelectorAll('[data-toggle]').forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('data-toggle');
+        const menuItem = this.closest('.menu-accordion');
+        const targetMenu = document.getElementById(targetId);
+
+        if (menuItem && targetMenu) {
+            const isActive = menuItem.classList.contains('active');
+
+            // Close all other accordions
+            document.querySelectorAll('.menu-accordion.active').forEach(item => {
+                if (item !== menuItem) {
+                    item.classList.remove('active');
+                }
+            });
+
+            // Toggle current accordion
+            menuItem.classList.toggle('active');
+        }
+    });
+});
+
+// Close menu accordion when clicking menu links
+document.querySelectorAll('.menu-sub .menu-link').forEach(link => {
+    link.addEventListener('click', function() {
+        // Optionally close the accordion when a submenu item is clicked
+        // Uncomment lines below if you want to close on navigation
+        // const accordion = this.closest('.menu-accordion');
+        // accordion?.classList.remove('active');
+    });
+});
+
+// Chart.js - Patient Statistics Bar Chart
+const barCtx = document.getElementById('barChart');
+if (barCtx) {
+    new Chart(barCtx, {
         type: 'bar',
         data: {
-            labels: ['Th 1', 'Th 2', 'Th 3', 'Th 4', 'Th 5', 'Th 6', 'Th 7', 'Th 8', 'Th 9', 'Th 10', 'Th 11', 'Th 12'],
+            labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
             datasets: [{
-                label: 'Bệnh nhân',
-                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                borderColor: 'rgba(59, 130, 246, 1)',
-                borderWidth: 1
-            }, {
                 label: 'Lượt khám',
                 data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                backgroundColor: 'rgba(34, 197, 94, 0.8)',
-                borderColor: 'rgba(34, 197, 94, 1)',
-                borderWidth: 1
+                backgroundColor: '#22c55e',
+                borderColor: '#16a34a',
+                borderWidth: 1,
+                borderRadius: 6
+            }, {
+                label: 'Bệnh nhân',
+                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                backgroundColor: '#3b82f6',
+                borderColor: '#2563eb',
+                borderWidth: 1,
+                borderRadius: 6
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
@@ -43,9 +129,41 @@ if (ctx) {
     });
 }
 
-// Responsive sidebar for mobile
-if (window.innerWidth <= 768) {
-    document.getElementById('toggleSidebar').addEventListener('click', function() {
-        document.getElementById('sidebar').classList.toggle('show');
+// Chart.js - ICD Statistics
+const icdCtx = document.getElementById('icdChart');
+if (icdCtx) {
+    new Chart(icdCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [],
+            datasets: [{
+                data: [],
+                backgroundColor: [
+                    '#ef4444',
+                    '#f97316',
+                    '#eab308',
+                    '#22c55e',
+                    '#3b82f6',
+                    '#8b5cf6'
+                ],
+                borderColor: 'white',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom'
+                }
+            }
+        }
     });
+}
+
+// Responsive sidebar for mobile
+if (window.innerWidth <= 991) {
+    document.getElementById('sidebar') ? .classList.remove('collapsed');
 }

@@ -1,6 +1,6 @@
-# Hệ thống Quản lý Bệnh nhân
+# Hệ thống Quản lý Bệnh nhân (React)
 
-Hệ thống quản lý bệnh nhân đơn giản được xây dựng với HTML, CSS, JavaScript và Bootstrap 5.
+Phiên bản hiện tại đã được chuyển sang React + Vite và tách cấu trúc giao diện thành các component.
 
 ## Tính năng
 
@@ -12,15 +12,13 @@ Hệ thống quản lý bệnh nhân đơn giản được xây dựng với HTM
 
 ## Công nghệ sử dụng
 
-- HTML5
+- React 18
+- React Router DOM
+- Vite
 - CSS3
-- JavaScript (jQuery)
 - Bootstrap 5
-- DataTables
 - Chart.js
 - Font Awesome
-- Date Range Picker
-- SheetJS (xlsx)
 
 ## Cài đặt
 
@@ -30,33 +28,51 @@ git clone https://github.com/nhnamdev/quanlybn.git
 cd quanlybn
 ```
 
-2. Mở file `index.html` trong trình duyệt
+2. Cài dependencies:
+```bash
+npm install
+```
 
-Không cần cài đặt thêm, tất cả dependencies được load từ CDN.
+3. Chạy dev server:
+```bash
+npm run dev
+```
+
+4. Build production:
+```bash
+npm run build
+```
 
 ## Cấu trúc thư mục
 
 ```
 quanlybn/
-├── index.html              # Trang chủ
-├── patients.html           # Danh sách bệnh nhân
-├── prescriptions.html      # Đơn thuốc
-├── drugs.html              # Tủ thuốc
-├── reports.html            # Báo cáo
+├── index.html              # Vite entry (mount React)
+├── src/
+│   ├── App.jsx             # Router chính
+│   ├── main.jsx            # React bootstrap
+│   ├── components/
+│   │   ├── layout/         # Layout tổng (header/footer)
+│   │   ├── sidebar/        # Sidebar component
+│   │   ├── header/         # Header component
+│   │   └── dashboard/      # Dashboard widgets/charts
+│   └── pages/              # Các trang theo route
 ├── style.css               # CSS chung
-├── script.js               # JavaScript chung
-├── patients.js             # Logic bệnh nhân
-├── prescriptions.js        # Logic đơn thuốc
-├── drugs.js                # Logic tủ thuốc
-├── reports.js              # Logic báo cáo
+├── script.js               # Legacy script cũ (có thể bỏ sau)
+├── patients.js             # Legacy logic cũ
+├── prescriptions.js        # Legacy logic cũ
+├── drugs.js                # Legacy logic cũ
+├── reports.js              # Legacy logic cũ
+├── package.json            # Scripts/dependencies React
+├── vite.config.js          # Vite config
 └── README.md
 ```
 
 ## Sử dụng
 
-1. Mở `index.html` để xem trang chủ
-2. Sử dụng menu sidebar để điều hướng giữa các trang
-3. Dữ liệu mẫu đã được tích hợp sẵn để demo
+1. Chạy `npm run dev`
+2. Mở địa chỉ local do Vite cung cấp
+3. Điều hướng bằng sidebar qua các route React
 
 ## Tính năng chi tiết
 
