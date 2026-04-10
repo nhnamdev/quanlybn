@@ -175,7 +175,7 @@ function PatientsPage() {
               }, 0)
             : 0;
 
-        const html = `<!doctype html><html lang="vi"><head><meta charset="UTF-8"/><title>Đơn khám</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#111827}h2,h3{margin:0 0 10px 0}p{margin:8px 0}table{width:100%;border-collapse:collapse;margin-top:16px}th,td{border:1px solid #d1d5db;padding:8px;font-size:13px}th{background:#f3f4f6;text-align:left}.total{margin-top:12px;font-size:16px;font-weight:700}</style></head><body><h2>Đơn Khám Sức Khỏe</h2><div><strong>Mã BN:</strong> ${patient.id}</div><div><strong>Họ và Tên:</strong> ${patient.name}</div><div><strong>Giới tính:</strong> ${genderLabel(patient.gender)}</div><div><strong>Ngày sinh:</strong> ${patient.dob}</div><div><strong>Điện thoại:</strong> ${patient.phone_number || "-"}</div><div><strong>Địa chỉ:</strong> ${patient.address || "-"}</div><div><strong>STT nhân dân:</strong> ${patient.identity_number || "-"}</div><table><thead><tr><th>Hình thức khám</th><th>Giá tiền</th></tr></thead><tbody><tr><td>Phí khám cố định</td><td style="text-align: right">${Number(baseFee).toLocaleString("vi-VN")} đ</td></tr>${examinationList}</tbody></table><div class="total">Tổng chi phí: ${Number(baseFee + patientExamCost).toLocaleString("vi-VN")} đ</div></body></html>`;
+        const html = `<!doctype html><html lang="vi"><head><meta charset="UTF-8"/><title>Đơn khám</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#111827}h2,h3{margin:0 0 10px 0}p{margin:8px 0}table{width:100%;border-collapse:collapse;margin-top:16px}th,td{border:1px solid #d1d5db;padding:8px;font-size:13px}th{background:#f3f4f6;text-align:left}.total{margin-top:12px;font-size:16px;font-weight:700}</style></head><body><h2>Đơn Khám Sức Khỏe</h2><div><strong>Mã BN:</strong> ${patient.id}</div><div><strong>Họ và Tên:</strong> ${patient.name}</div><div><strong>Giới tính:</strong> ${genderLabel(patient.gender)}</div><div><strong>Ngày sinh:</strong> ${patient.dob}</div><div><strong>Điện thoại:</strong> ${patient.phone_number || "-"}</div><div><strong>Địa chỉ:</strong> ${patient.address || "-"}</div><div><strong>CCCD:</strong> ${patient.identity_number || "-"}</div><table><thead><tr><th>Hình thức khám</th><th>Giá tiền</th></tr></thead><tbody><tr><td>Phí khám cố định</td><td style="text-align: right">${Number(baseFee).toLocaleString("vi-VN")} đ</td></tr>${examinationList}</tbody></table><div class="total">Tổng chi phí: ${Number(baseFee + patientExamCost).toLocaleString("vi-VN")} đ</div></body></html>`;
 
         const printWindow = window.open("", "_blank", "width=800,height=600");
         if (!printWindow) return;
@@ -306,11 +306,7 @@ function PatientsPage() {
 
                         <div className="row">
                             <div className="col-sm-12">
-                                <table
-                                    id="patient_table"
-                                    className="table align-middle table-striped table-row-dashed fs-5 g-1 align-middle dataTable no-footer dtr-inline"
-                                    aria-describedby="patient_table_info"
-                                >
+                                <table id="patient_table" className="table align-middle table-striped table-row-dashed fs-5 g-1 align-middle dataTable no-footer dtr-inline" aria-describedby="patient_table_info">
                                     <thead>
                                         <tr className="text-start text-gray-900 fw-bolder fs-7 text-uppercase gs-0">
                                             <th style={{ width: "80px" }}>Ma BN</th>
@@ -319,16 +315,14 @@ function PatientsPage() {
                                             <th style={{ width: "90px" }}>Ngay sinh</th>
                                             <th style={{ width: "100px" }}>So dien thoai</th>
                                             <th style={{ width: "140px" }}>Dia chi</th>
-                                            <th style={{ width: "110px" }}>STT nhan dan</th>
+                                            <th style={{ width: "110px" }}>CCCD</th>
                                             <th className="text-end" style={{ width: "150px" }}>Thao tac</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {filteredPatients.length === 0 ? (
                                             <tr className="odd">
-                                                <td valign="top" colSpan="8" className="dataTables_empty">
-                                                    Khong co du lieu
-                                                </td>
+                                                <td valign="top" colSpan="8" className="dataTables_empty">Khong co du lieu</td>
                                             </tr>
                                         ) : (
                                             filteredPatients.map((patient) => (
@@ -342,11 +336,7 @@ function PatientsPage() {
                                                         <div className="d-flex align-items-center gap-2">
                                                             <span>{truncateText(patient.address, 40)}</span>
                                                             {patient.address && patient.address.length > 40 && (
-                                                                <button
-                                                                    className="btn btn-xs btn-light-primary"
-                                                                    onClick={() => showViewMoreModal("Dia chi", patient.address)}
-                                                                    title="Xem them"
-                                                                >
+                                                                <button className="btn btn-xs btn-light-primary" onClick={() => showViewMoreModal("Dia chi", patient.address)} title="Xem them">
                                                                     <i className="fas fa-eye" style={{ fontSize: "12px" }}></i>
                                                                 </button>
                                                             )}
@@ -359,24 +349,20 @@ function PatientsPage() {
                                                             onClick={() =>
                                                                 showViewMoreModal(
                                                                     "Chi tiết bệnh nhân",
-                                                                    `Mã BN: ${patient.id}\nTên: ${patient.name}\nGiới tính: ${genderLabel(patient.gender)}\nNgày sinh: ${patient.dob}\nĐiện thoại: ${patient.phone_number || "-"}\nĐịa chỉ: ${patient.address || "-"}\nSTT nhân dân: ${patient.identity_number || "-"}\nGhi chú: ${patient.notes || "-"}`
+                                                                    `Mã BN: ${patient.id}\nTên: ${patient.name}\nGiới tính: ${genderLabel(patient.gender)}\nNgày sinh: ${patient.dob}\nĐiện thoại: ${patient.phone_number || "-"}\nĐịa chỉ: ${patient.address || "-"}\nCCCD: ${patient.identity_number || "-"}\nGhi chú: ${patient.notes || "-"}`
                                                                 )
                                                             }
                                                         >
                                                             Chi tiết
                                                         </button>
-                                                        <button className="btn btn-sm btn-success" onClick={() => printPatientInvoice(patient)}>
-                                                            In đơn
-                                                        </button>
+                                                        <button className="btn btn-sm btn-success" onClick={() => printPatientInvoice(patient)}>In đơn</button>
                                                     </td>
                                                 </tr>
                                             ))
                                         )}
                                     </tbody>
                                 </table>
-                                <div id="patient_table_processing" className="dataTables_processing" style={{ display: "none" }}>
-                                    Dang xu ly...
-                                </div>
+                                <div id="patient_table_processing" className="dataTables_processing" style={{ display: "none" }}>Dang xu ly...</div>
                             </div>
                         </div>
 
@@ -390,14 +376,10 @@ function PatientsPage() {
                                 <div className="dataTables_paginate paging_simple_numbers" id="patient_table_paginate">
                                     <ul className="pagination">
                                         <li className="paginate_button page-item previous disabled" id="patient_table_previous">
-                                            <a href="#" aria-controls="patient_table" data-dt-idx="0" tabIndex="0" className="page-link">
-                                                Lui
-                                            </a>
+                                            <a href="#" aria-controls="patient_table" data-dt-idx="0" tabIndex="0" className="page-link">Lui</a>
                                         </li>
                                         <li className="paginate_button page-item next disabled" id="patient_table_next">
-                                            <a href="#" aria-controls="patient_table" data-dt-idx="1" tabIndex="0" className="page-link">
-                                                Tiep
-                                            </a>
+                                            <a href="#" aria-controls="patient_table" data-dt-idx="1" tabIndex="0" className="page-link">Tiep</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -414,12 +396,7 @@ function PatientsPage() {
                             <div className="modal-content">
                                 <div className="modal-header">
                                     <h5 className="modal-title">Them benh nhan moi</h5>
-                                    <button
-                                        type="button"
-                                        className="btn btn-icon btn-sm btn-active-light-primary ms-2"
-                                        aria-label="Close"
-                                        onClick={() => setShowCreateModal(false)}
-                                    >
+                                    <button type="button" className="btn btn-icon btn-sm btn-active-light-primary ms-2" aria-label="Close" onClick={() => setShowCreateModal(false)}>
                                         <span className="svg-icon svg-icon-2x">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                                                 <rect opacity="0.5" x="6" y="17.3137" width="16" height="2" rx="1" transform="rotate(-45 6 17.3137)" fill="black" />
@@ -454,7 +431,7 @@ function PatientsPage() {
                                             <input type="text" className="form-control" name="address" value={formData.address} onChange={onInputChange} />
                                         </div>
                                         <div className="mb-3">
-                                            <label className="form-label">STT nhan dan</label>
+                                            <label className="form-label">CCCD</label>
                                             <input type="text" className="form-control" name="identity_number" value={formData.identity_number} onChange={onInputChange} />
                                         </div>
                                         <div className="mb-3">
@@ -467,13 +444,7 @@ function PatientsPage() {
                                             <div style={{ border: "1px solid #ccc", borderRadius: "4px", padding: "8px", maxHeight: "150px", overflowY: "auto" }}>
                                                 {examinationOptions.map((option) => (
                                                     <div key={option.value} className="form-check">
-                                                        <input
-                                                            className="form-check-input"
-                                                            type="checkbox"
-                                                            id={`exam_${option.value}`}
-                                                            checked={formData.examination_types.includes(option.value)}
-                                                            onChange={() => onExaminationChange(option.value)}
-                                                        />
+                                                        <input className="form-check-input" type="checkbox" id={`exam_${option.value}`} checked={formData.examination_types.includes(option.value)} onChange={() => onExaminationChange(option.value)} />
                                                         <label className="form-check-label" htmlFor={`exam_${option.value}`}>
                                                             {option.label} - {Number(option.price).toLocaleString("vi-VN")} đ
                                                         </label>
@@ -486,19 +457,13 @@ function PatientsPage() {
                                             <div style={{ backgroundColor: "#f0f0f0", padding: "12px", borderRadius: "4px", fontSize: "14px" }}>
                                                 <div>Phí khám cố định: {Number(baseFee).toLocaleString("vi-VN")} đ</div>
                                                 <div>Chi phí hình thức khám: {Number(totalExaminationCost).toLocaleString("vi-VN")} đ</div>
-                                                <div style={{ fontWeight: "bold", fontSize: "16px", marginTop: "8px", color: "#d63031" }}>
-                                                    Tổng chi phí: {Number(totalCost).toLocaleString("vi-VN")} đ
-                                                </div>
+                                                <div style={{ fontWeight: "bold", fontSize: "16px", marginTop: "8px", color: "#d63031" }}>Tổng chi phí: {Number(totalCost).toLocaleString("vi-VN")} đ</div>
                                             </div>
                                         </div>
 
                                         <div className="modal-footer">
-                                            <button type="button" className="btn btn-secondary" onClick={() => setShowCreateModal(false)}>
-                                                Dong
-                                            </button>
-                                            <button type="submit" className="btn btn-primary">
-                                                Luu
-                                            </button>
+                                            <button type="button" className="btn btn-secondary" onClick={() => setShowCreateModal(false)}>Dong</button>
+                                            <button type="submit" className="btn btn-primary">Luu</button>
                                         </div>
                                     </form>
                                 </div>
@@ -521,9 +486,7 @@ function PatientsPage() {
                                 <p style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{viewMoreContent.text}</p>
                             </div>
                             <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" onClick={() => setViewMoreModal(false)}>
-                                    Dong
-                                </button>
+                                <button type="button" className="btn btn-secondary" onClick={() => setViewMoreModal(false)}>Dong</button>
                             </div>
                         </div>
                     </div>
