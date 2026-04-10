@@ -1,5 +1,8 @@
 // Prescriptions Page JavaScript
 
+// Declare table at module scope to avoid temporal dead zone
+let table;
+
 $(document).ready(function() {
     // Set today's date
     $('input[name="prescription_date"]').val(new Date().toISOString().split('T')[0]);
@@ -32,12 +35,12 @@ $(document).ready(function() {
 
     $('#dateRangePicker').on('apply.daterangepicker', function(ev, picker) {
         $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
-        table.ajax.reload();
+        if (table) table.draw();
     });
 
     $('#dateRangePicker').on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
-        table.ajax.reload();
+        if (table) table.draw();
     });
 
     // Sample data for demonstration
@@ -72,7 +75,7 @@ $(document).ready(function() {
     ];
 
     // Initialize DataTable
-    const table = $('#prescriptionTable').DataTable({
+    table = $('#prescriptionTable').DataTable({
         data: sampleData,
         columns: [
             { data: 'date' },

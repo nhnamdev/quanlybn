@@ -1,5 +1,8 @@
 // Reports Page JavaScript
 
+// Declare table at module scope to avoid temporal dead zone
+let table;
+
 $(document).ready(function() {
     // Sample report data
     const sampleReports = [
@@ -84,16 +87,16 @@ $(document).ready(function() {
 
     $('#dateRangePicker').on('apply.daterangepicker', function(ev, picker) {
         $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
-        table.ajax.reload();
+        if (table) table.draw();
     });
 
     $('#dateRangePicker').on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
-        table.ajax.reload();
+        if (table) table.draw();
     });
 
     // Initialize DataTable
-    const table = $('#reportTable').DataTable({
+    table = $('#reportTable').DataTable({
         data: sampleReports,
         columns: [
             { data: 'date' },

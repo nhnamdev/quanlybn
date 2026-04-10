@@ -1,7 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 :root {
     --sidebar-width: 265px;
     --sidebar-bg: #1a1f2e;
@@ -654,17 +653,14 @@ small,
         transform: translateX(-100%);
         width: min(85vw, 320px);
     }
-
     .sidebar-logo {
         min-height: 62px;
         padding: 10px 12px;
     }
-
     .logo-img {
         width: min(100%, 190px);
         height: 42px;
     }
-
     .sidebar.show,
     .sidebar.active {
         transform: translateX(0);
@@ -706,22 +702,53 @@ small,
     margin-left: auto;
 }
 
-@layer components {
+.responsive-action-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+@media (min-width: 768px) {
     .responsive-action-group {
-        @apply flex flex-wrap gap-2 md:gap-3;
+        gap: 0.75rem;
     }
+}
 
+.responsive-card-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+}
+@media (min-width: 640px) {
     .responsive-card-grid {
-        @apply grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+}
+@media (min-width: 1280px) {
+    .responsive-card-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
 
+.responsive-content-pad {
+    padding: 0.75rem;
+}
+@media (min-width: 640px) {
     .responsive-content-pad {
-        @apply px-3 py-3 sm:px-4 lg:px-6;
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
+}
+@media (min-width: 1024px) {
+    .responsive-content-pad {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
 
-    .responsive-table-wrap {
-        @apply w-full overflow-x-auto rounded-lg;
-    }
+.responsive-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 0.5rem;
 }
 
 @media (max-width: 767.98px) {
@@ -729,56 +756,45 @@ small,
         min-height: 58px;
         padding: 0 12px;
     }
-
     .app-header-logo {
         height: 34px;
         max-width: 165px;
     }
-
     .header-mobile-title {
         font-size: 1.05rem;
         max-width: 48%;
     }
-
     .page-title h1 {
         font-size: 1.1rem;
     }
-
     .breadcrumb {
         display: none;
     }
-
     #kt_content_container {
         padding: 12px;
     }
-
     .card-body,
     .card .table-responsive {
         padding-left: 0.85rem;
         padding-right: 0.85rem;
     }
-
     .btn,
     button.btn {
         min-height: 38px;
     }
-
     .dataTables_wrapper .dataTables_filter,
     .dataTables_wrapper .dataTables_length {
         width: 100%;
         margin-bottom: 0.75rem;
     }
-
     .dataTables_wrapper .dataTables_filter input {
         width: 100%;
         margin-left: 0;
     }
-
     .app-footer-wrap {
         padding-top: 12px;
         padding-bottom: 12px;
     }
-
     .app-footer-brand {
         width: 100%;
         justify-content: center;
@@ -786,14 +802,12 @@ small,
         font-size: 0.9rem;
         gap: 7px;
     }
-
     .app-footer-links {
         width: 100%;
         justify-content: center;
         gap: 14px;
         flex-wrap: wrap;
     }
-
     .app-footer-links a {
         font-size: 0.9rem;
     }
@@ -829,7 +843,9 @@ small,
 }
 
 #patient_table_wrapper .dt-buttons .btn,
-#rx_table_wrapper .dt-buttons .btn {
+#rx_table_wrapper .dt-buttons .btn,
+#drugs_table_wrapper .dt-buttons .btn,
+#report_table_wrapper .dt-buttons .btn {
     border: 0;
     box-shadow: none;
     font-weight: 600;
@@ -837,80 +853,106 @@ small,
 }
 
 #patient_table_wrapper .dt-buttons .btn span,
-#rx_table_wrapper .dt-buttons .btn span {
+#rx_table_wrapper .dt-buttons .btn span,
+#drugs_table_wrapper .dt-buttons .btn span,
+#report_table_wrapper .dt-buttons .btn span {
     display: inline-flex;
     align-items: center;
     gap: 6px;
 }
 
 #patient_table_wrapper .dt-buttons .btn-light,
-#rx_table_wrapper .dt-buttons .btn-light {
+#rx_table_wrapper .dt-buttons .btn-light,
+#drugs_table_wrapper .dt-buttons .btn-light,
+#report_table_wrapper .dt-buttons .btn-light {
     background: #eceef7;
     color: #1f2937;
 }
 
 #patient_table_wrapper .dt-buttons .btn-light:hover,
-#rx_table_wrapper .dt-buttons .btn-light:hover {
+#rx_table_wrapper .dt-buttons .btn-light:hover,
+#drugs_table_wrapper .dt-buttons .btn-light:hover,
+#report_table_wrapper .dt-buttons .btn-light:hover {
     background: #e1e5f1;
     color: #111827;
 }
 
 #patient_table_wrapper .dt-buttons .btn-light-primary,
-#rx_table_wrapper .dt-buttons .btn-light-primary {
+#rx_table_wrapper .dt-buttons .btn-light-primary,
+#drugs_table_wrapper .dt-buttons .btn-light-primary,
+#report_table_wrapper .dt-buttons .btn-light-primary {
     background: #eef1fb;
     color: #2f3b52;
 }
 
 #patient_table_wrapper .dt-buttons .btn-light-primary:hover,
-#rx_table_wrapper .dt-buttons .btn-light-primary:hover {
+#rx_table_wrapper .dt-buttons .btn-light-primary:hover,
+#drugs_table_wrapper .dt-buttons .btn-light-primary:hover,
+#report_table_wrapper .dt-buttons .btn-light-primary:hover {
     background: #e2e8f8;
     color: #1f2a3d;
 }
 
 #patient_table_wrapper .dt-buttons .btn-light-success,
-#rx_table_wrapper .dt-buttons .btn-light-success {
+#rx_table_wrapper .dt-buttons .btn-light-success,
+#drugs_table_wrapper .dt-buttons .btn-light-success,
+#report_table_wrapper .dt-buttons .btn-light-success {
     background: #e8faf0;
     color: #16a34a;
 }
 
 #patient_table_wrapper .dt-buttons .btn-light-success:hover,
-#rx_table_wrapper .dt-buttons .btn-light-success:hover {
+#rx_table_wrapper .dt-buttons .btn-light-success:hover,
+#drugs_table_wrapper .dt-buttons .btn-light-success:hover,
+#report_table_wrapper .dt-buttons .btn-light-success:hover {
     background: #d6f6e4;
     color: #12813a;
 }
 
 #patient_table_wrapper .dt-buttons .btn-light-danger,
-#rx_table_wrapper .dt-buttons .btn-light-danger {
+#rx_table_wrapper .dt-buttons .btn-light-danger,
+#drugs_table_wrapper .dt-buttons .btn-light-danger,
+#report_table_wrapper .dt-buttons .btn-light-danger {
     background: #ffecf1;
     color: #ff4d79;
 }
 
 #patient_table_wrapper .dt-buttons .btn-light-danger:hover,
-#rx_table_wrapper .dt-buttons .btn-light-danger:hover {
+#rx_table_wrapper .dt-buttons .btn-light-danger:hover,
+#drugs_table_wrapper .dt-buttons .btn-light-danger:hover,
+#report_table_wrapper .dt-buttons .btn-light-danger:hover {
     background: #ffdce5;
     color: #e63e67;
 }
 
 #patient_table_wrapper .dt-buttons .btn-light-info,
-#rx_table_wrapper .dt-buttons .btn-light-info {
+#rx_table_wrapper .dt-buttons .btn-light-info,
+#drugs_table_wrapper .dt-buttons .btn-light-info,
+#report_table_wrapper .dt-buttons .btn-light-info {
     background: #efe9ff;
     color: #6b4efc;
 }
 
 #patient_table_wrapper .dt-buttons .btn-light-info:hover,
-#rx_table_wrapper .dt-buttons .btn-light-info:hover {
+#rx_table_wrapper .dt-buttons .btn-light-info:hover,
+#drugs_table_wrapper .dt-buttons .btn-light-info:hover,
+#report_table_wrapper .dt-buttons .btn-light-info:hover {
     background: #e1d7ff;
     color: #5638eb;
 }
 
 #patient_table_wrapper .dt-buttons .btn:first-child,
-#rx_table_wrapper .dt-buttons .btn:first-child {
+#rx_table_wrapper .dt-buttons .btn:first-child,
+#drugs_table_wrapper .dt-buttons .btn:first-child,
+#report_table_wrapper .dt-buttons .btn:first-child {
     border-top-left-radius: 8px;
     border-bottom-left-radius: 8px;
 }
 
 #patient_table_wrapper .dt-buttons .btn:last-child,
-#rx_table_wrapper .dt-buttons .btn:last-child {
+#rx_table_wrapper .dt-buttons .btn:last-child,
+#drugs_table_wrapper .dt-buttons .btn:last-child,
+#report_table_wrapper .dt-buttons .btn:last-child {
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
 }
