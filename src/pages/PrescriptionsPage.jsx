@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useDrugs, usePatients, usePrescriptions } from "../hooks";
 
 function PrescriptionsPage() {
@@ -43,8 +43,8 @@ function PrescriptionsPage() {
             const text = [
                     rx.id,
                     rx.prescription_date,
-                    patient ? .name || "",
-                    patient ? .gender || "",
+                    patient?.name || "",
+                    patient?.gender || "",
                     rx.diagnosis || "",
                     rx.notes || "",
                     medicinesText
@@ -154,7 +154,7 @@ function PrescriptionsPage() {
     const openDrugPicker = async(prescription) => {
         setSelectedPrescription(prescription);
         setDrugSearchQuery("");
-        setSelectedDiagnosis(prescription ? .diagnosis || "");
+        setSelectedDiagnosis(prescription?.diagnosis || "");
         try {
             const existingItems = await getPrescriptionItems(prescription.id);
             const mapped = (existingItems || []).map((item) => ({
@@ -220,7 +220,7 @@ function PrescriptionsPage() {
             try {
                 const newId = createPrescriptionId();
                 const selectedPatient = patients.find((p) => p.id === createForm.patientId);
-                const patientClinicalNotes = String(selectedPatient ? .notes || "").trim();
+                const patientClinicalNotes = String(selectedPatient?.notes || "").trim();
                 const manualNotes = String(createForm.notes || "").trim();
                 const finalPrescriptionNotes = manualNotes ?
                     `${manualNotes}${patientClinicalNotes ? `\n\n--- Ghi chu lam sang benh nhan ---\n${patientClinicalNotes}` : ""}`

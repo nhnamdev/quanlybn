@@ -34,9 +34,9 @@ export const useExaminationTypes = (options = {}) => {
     }, [fetchExaminationTypes]);
 
     const addExaminationType = useCallback(async(payload) => {
-        const label = String(payload ? .label || "").trim();
-        const price = Number(payload ? .price) || 0;
-        if (!label) throw new Error("Ten hinh thuc kham khong duoc de trong.");
+        const label = String(payload?.label || "").trim();
+        const price = Number(payload?.price) || 0;
+        if (!label) throw new Error("Tên hình thức khám không được để trống.");
 
         const idBase = makeId(label);
         let id = idBase;
@@ -58,9 +58,9 @@ export const useExaminationTypes = (options = {}) => {
     }, [examinationTypes]);
 
     const updateExaminationType = useCallback(async(id, payload) => {
-        const label = String(payload ? .label || "").trim();
-        const price = Number(payload ? .price) || 0;
-        if (!label) throw new Error("Ten hinh thuc kham khong duoc de trong.");
+        const label = String(payload?.label || "").trim();
+        const price = Number(payload?.price) || 0;
+        if (!label) throw new Error("Tên hình thức khám không được để trống.");
 
         const updated = await examinationTypesQueries.update(id, { label, price });
         setExaminationTypes((prev) => prev.map((item) => (item.id === id ? updated : item)));

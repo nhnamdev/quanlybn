@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useDrugs } from "../hooks";
 
 function DrugsPage() {
@@ -36,7 +36,7 @@ function DrugsPage() {
     };
 
     const toCsv = (rows) => {
-        const headers = ["Ma dang ky", "Ten thuoc", "Hoat chat", "Ham luong", "Duong dung", "So luong", "Don vi", "Gia", "Ghi chu"];
+        const headers = ["Mã đăng ký", "Tên thuốc", "Hoạt chất", "Hàm lượng", "Đường dùng", "Số lượng", "Đơn vị", "Giá", "Ghi chú"];
         const body = rows.map((row) => [
             row.registration_number || "",
             row.drug_name || "",
@@ -56,7 +56,7 @@ function DrugsPage() {
 
     const ensureRows = () => {
         if (filteredDrugs.length > 0) return true;
-        window.alert("Chua co du lieu de xuat.");
+        window.alert("Chưa có dữ liệu để xuất.");
         return false;
     };
 
@@ -68,7 +68,7 @@ function DrugsPage() {
     const handleCopy = async () => {
         if (!ensureRows()) return;
         await navigator.clipboard.writeText(toCsv(filteredDrugs));
-        window.alert("Da sao chep du lieu.");
+        window.alert("Đã sao chép dữ liệu.");
     };
 
     const handleExcel = () => {
@@ -90,7 +90,7 @@ function DrugsPage() {
                     `<tr><td>${row.registration_number || ""}</td><td>${row.drug_name || ""}</td><td>${row.active_ingredient || ""}</td><td>${row.concentration || ""}</td><td>${row.route || ""}</td><td>${row.quantity || ""}</td><td>${row.unit || ""}</td><td>${row.price ?? ""}</td><td>${row.notes || ""}</td></tr>`
             )
             .join("");
-        const html = `<!doctype html><html><head><meta charset="UTF-8"/><title>Danh sach thuoc</title><style>body{font-family:Arial,sans-serif;padding:16px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:6px;font-size:12px}th{background:#f5f5f5}</style></head><body><h3>Danh sach thuoc</h3><table><thead><tr><th>Ma dang ky</th><th>Ten thuoc</th><th>Hoat chat</th><th>Ham luong</th><th>Duong dung</th><th>So luong</th><th>Don vi</th><th>Gia</th><th>Ghi chu</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
+        const html = `<!doctype html><html><head><meta charset="UTF-8"/><title>Danh sách thuốc</title><style>body{font-family:Arial,sans-serif;padding:16px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:6px;font-size:12px}th{background:#f5f5f5}</style></head><body><h3>Danh sách thuốc</h3><table><thead><tr><th>Mã đăng ký</th><th>Tên thuốc</th><th>Hoạt chất</th><th>Hàm lượng</th><th>Đường dùng</th><th>Số lượng</th><th>Đơn vị</th><th>Giá</th><th>Ghi chú</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
         const popup = window.open("", "_blank", "width=1100,height=760");
         if (!popup) return;
         popup.document.open();
@@ -136,9 +136,9 @@ function DrugsPage() {
             setShowCreateModal(false);
             resetForm();
             await searchDrugs(searchQuery);
-            window.alert("Da them thuoc moi thanh cong.");
+            window.alert("Đã thêm thuốc mới thành công.");
         } catch (submitError) {
-            window.alert(`Loi khi them thuoc: ${submitError.message}`);
+            window.alert(`Lỗi khi thêm thuốc: ${submitError.message}`);
         }
     };
 
@@ -147,42 +147,42 @@ function DrugsPage() {
             <div className="card-header border-0 pt-6">
                 <div className="card-title">
                     <h2 className="card-title align-items-start flex-column">
-                        <span className="card-label fw-bolder fs-3 mb-1">Tu thuoc</span>
-                        <span className="text-muted mt-1 fw-bold fs-7">Danh sach thuoc trong phong kham</span>
+                        <span className="card-label fw-bolder fs-3 mb-1">Tủ thuốc</span>
+                        <span className="text-muted mt-1 fw-bold fs-7">Danh sách thuốc trong phòng khám</span>
                     </h2>
                 </div>
                 <div className="card-toolbar">
                     <button type="button" className="btn btn-sm btn-light btn-active-success me-2" onClick={() => setShowImportModal(true)}>
-                        Nhap thuoc tu Excel
+                        Nhập thuốc từ Excel
                     </button>
                     <button type="button" className="btn btn-sm btn-light btn-active-info me-2" onClick={handleExcel}>
-                        Xuat danh sach thuoc
+                        Xuất danh sách thuốc
                     </button>
                     <button type="button" className="btn btn-sm btn-light btn-active-primary" onClick={() => setShowCreateModal(true)}>
-                        Them thuoc moi
+                        Thêm thuốc mới
                     </button>
                 </div>
             </div>
 
             <div className="card-body py-4">
-                {loading && <div className="alert alert-info">Dang tai du lieu...</div>}
-                {error && <div className="alert alert-danger">Loi: {error}</div>}
+                {loading && <div className="alert alert-info">Đang tải dữ liệu...</div>}
+                {error && <div className="alert alert-danger">Lỗi: {error}</div>}
 
                 <div className="row align-items-center mb-4">
                     <div className="col-sm-8 d-none d-lg-block">
                         <div className="dt-buttons btn-group flex-wrap">
-                            <button className="btn btn-secondary btn-light-primary btn-sm" type="button" onClick={handleCopy}>Sao chep</button>
+                            <button className="btn btn-secondary btn-light-primary btn-sm" type="button" onClick={handleCopy}>Sao chép</button>
                             <button className="btn btn-secondary btn-light-success btn-sm" type="button" onClick={handleExcel}>Excel</button>
-                            <button className="btn btn-secondary btn-light-info btn-sm" type="button" onClick={handlePrint}>In bao cao</button>
+                            <button className="btn btn-secondary btn-light-info btn-sm" type="button" onClick={handlePrint}>In báo cáo</button>
                         </div>
                     </div>
                     <div className="col-sm-4">
                         <label className="w-100">
-                            Tim kiem:
+                            Tìm kiếm:
                             <input
                                 type="search"
                                 className="form-control form-control-sm form-control-solid"
-                                placeholder="Ten thuoc hoac hoat chat"
+                                placeholder="Tên thuốc hoặc hoạt chất"
                                 value={searchQuery}
                                 onChange={(event) => handleSearch(event.target.value)}
                             />
@@ -194,21 +194,21 @@ function DrugsPage() {
                     <table className="table align-middle table-striped table-row-dashed fs-7 g-1">
                         <thead>
                             <tr className="text-start text-gray-900 fw-bolder text-uppercase gs-0">
-                                <th style={{ width: "100px" }}>Ma dang ky</th>
-                                <th style={{ width: "130px" }}>Ten thuoc</th>
-                                <th style={{ width: "130px" }}>Hoat chat</th>
-                                <th style={{ width: "90px" }}>Ham luong</th>
-                                <th style={{ width: "100px" }}>Duong dung</th>
-                                <th style={{ width: "80px" }}>So luong</th>
-                                <th style={{ width: "70px" }}>Don vi</th>
-                                <th style={{ width: "100px" }}>Gia</th>
-                                <th style={{ width: "160px" }}>Ghi chu</th>
+                                <th style={{ width: "100px" }}>Mã đăng ký</th>
+                                <th style={{ width: "130px" }}>Tên thuốc</th>
+                                <th style={{ width: "130px" }}>Hoạt chất</th>
+                                <th style={{ width: "90px" }}>Hàm lượng</th>
+                                <th style={{ width: "100px" }}>Đường dùng</th>
+                                <th style={{ width: "80px" }}>Số lượng</th>
+                                <th style={{ width: "70px" }}>Đơn vị</th>
+                                <th style={{ width: "100px" }}>Giá</th>
+                                <th style={{ width: "160px" }}>Ghi chú</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredDrugs.length === 0 ? (
                                 <tr>
-                                    <td colSpan="9" className="text-center">Khong co du lieu</td>
+                                    <td colSpan="9" className="text-center">Không có dữ liệu</td>
                                 </tr>
                             ) : (
                                 filteredDrugs.map((row) => (
@@ -237,7 +237,7 @@ function DrugsPage() {
                                                             setShowNotesModal(true);
                                                         }}
                                                     >
-                                                        Xem them
+                                                        Xem thêm
                                                     </button>
                                                 )}
                                             </div>
@@ -255,7 +255,7 @@ function DrugsPage() {
                     <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: "520px" }}>
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h5 className="modal-title">Ghi chu</h5>
+                                <h5 className="modal-title">Ghi chú</h5>
                                 <button type="button" className="btn-close" onClick={() => setShowNotesModal(false)} aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
@@ -272,24 +272,24 @@ function DrugsPage() {
                         <div className="modal-dialog modal-dialog-centered">
                             <div className="modal-content">
                                 <div className="modal-header">
-                                    <h5 className="modal-title">Nhap thuoc tu Excel</h5>
+                                    <h5 className="modal-title">Nhập thuốc từ Excel</h5>
                                     <button type="button" className="btn-close" onClick={() => setShowImportModal(false)} aria-label="Close"></button>
                                 </div>
                                 <div className="modal-body">
-                                    <p className="text-muted mb-3">Vui long chon file de nhap du lieu.</p>
+                                    <p className="text-muted mb-3">Vui lòng chọn file để nhập dữ liệu.</p>
                                     <input type="file" className="form-control" accept=".xlsx,.xls,.csv" />
                                 </div>
                                 <div className="modal-footer">
-                                    <button type="button" className="btn btn-light" onClick={() => setShowImportModal(false)}>Dong</button>
+                                    <button type="button" className="btn btn-light" onClick={() => setShowImportModal(false)}>Đóng</button>
                                     <button
                                         type="button"
                                         className="btn btn-primary"
                                         onClick={() => {
-                                            window.alert("Chuc nang nhap Excel dang duoc phat trien.");
+                                            window.alert("Chức năng nhập Excel đang được phát triển.");
                                             setShowImportModal(false);
                                         }}
                                     >
-                                        Nhap
+                                        Nhập
                                     </button>
                                 </div>
                             </div>
@@ -305,26 +305,26 @@ function DrugsPage() {
                         <div className="modal-dialog modal-dialog-centered modal-lg">
                             <div className="modal-content">
                                 <div className="modal-header">
-                                    <h5 className="modal-title">Them thuoc moi</h5>
+                                    <h5 className="modal-title">Thêm thuốc mới</h5>
                                     <button type="button" className="btn-close" onClick={() => setShowCreateModal(false)} aria-label="Close"></button>
                                 </div>
                                 <form onSubmit={handleCreateSubmit}>
                                     <div className="modal-body">
                                         <div className="row g-3">
-                                            <div className="col-md-6"><label className="form-label">Ma dang ky</label><input name="registration_number" type="text" className="form-control" value={newDrugForm.registration_number} onChange={handleCreateInput} required /></div>
-                                            <div className="col-md-6"><label className="form-label">Ten thuoc</label><input name="drug_name" type="text" className="form-control" value={newDrugForm.drug_name} onChange={handleCreateInput} required /></div>
-                                            <div className="col-md-6"><label className="form-label">Hoat chat</label><input name="active_ingredient" type="text" className="form-control" value={newDrugForm.active_ingredient} onChange={handleCreateInput} /></div>
-                                            <div className="col-md-6"><label className="form-label">Ham luong</label><input name="concentration" type="text" className="form-control" value={newDrugForm.concentration} onChange={handleCreateInput} /></div>
-                                            <div className="col-md-6"><label className="form-label">Duong dung</label><input name="route" type="text" className="form-control" value={newDrugForm.route} onChange={handleCreateInput} /></div>
-                                            <div className="col-md-3"><label className="form-label">So luong</label><input name="quantity" type="number" min="0" className="form-control" value={newDrugForm.quantity} onChange={handleCreateInput} required /></div>
-                                            <div className="col-md-3"><label className="form-label">Don vi</label><input name="unit" type="text" className="form-control" value={newDrugForm.unit} onChange={handleCreateInput} /></div>
-                                            <div className="col-md-6"><label className="form-label">Gia</label><input name="price" type="number" min="0" step="0.01" className="form-control" value={newDrugForm.price} onChange={handleCreateInput} /></div>
-                                            <div className="col-md-12"><label className="form-label">Ghi chu</label><textarea name="notes" rows="3" className="form-control" value={newDrugForm.notes} onChange={handleCreateInput}></textarea></div>
+                                            <div className="col-md-6"><label className="form-label">Mã đăng ký</label><input name="registration_number" type="text" className="form-control" value={newDrugForm.registration_number} onChange={handleCreateInput} required /></div>
+                                            <div className="col-md-6"><label className="form-label">Tên thuốc</label><input name="drug_name" type="text" className="form-control" value={newDrugForm.drug_name} onChange={handleCreateInput} required /></div>
+                                            <div className="col-md-6"><label className="form-label">Hoạt chất</label><input name="active_ingredient" type="text" className="form-control" value={newDrugForm.active_ingredient} onChange={handleCreateInput} /></div>
+                                            <div className="col-md-6"><label className="form-label">Hàm lượng</label><input name="concentration" type="text" className="form-control" value={newDrugForm.concentration} onChange={handleCreateInput} /></div>
+                                            <div className="col-md-6"><label className="form-label">Đường dùng</label><input name="route" type="text" className="form-control" value={newDrugForm.route} onChange={handleCreateInput} /></div>
+                                            <div className="col-md-3"><label className="form-label">Số lượng</label><input name="quantity" type="number" min="0" className="form-control" value={newDrugForm.quantity} onChange={handleCreateInput} required /></div>
+                                            <div className="col-md-3"><label className="form-label">Đơn vị</label><input name="unit" type="text" className="form-control" value={newDrugForm.unit} onChange={handleCreateInput} /></div>
+                                            <div className="col-md-6"><label className="form-label">Giá</label><input name="price" type="number" min="0" step="0.01" className="form-control" value={newDrugForm.price} onChange={handleCreateInput} /></div>
+                                            <div className="col-md-12"><label className="form-label">Ghi chú</label><textarea name="notes" rows="3" className="form-control" value={newDrugForm.notes} onChange={handleCreateInput}></textarea></div>
                                         </div>
                                     </div>
                                     <div className="modal-footer">
-                                        <button type="button" className="btn btn-light" onClick={() => setShowCreateModal(false)}>Dong</button>
-                                        <button type="submit" className="btn btn-primary">Luu thuoc</button>
+                                        <button type="button" className="btn btn-light" onClick={() => setShowCreateModal(false)}>Đóng</button>
+                                        <button type="submit" className="btn btn-primary">Lưu thuốc</button>
                                     </div>
                                 </form>
                             </div>
