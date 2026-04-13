@@ -1,10 +1,20 @@
+import { useState } from "react";
 import { useLocation } from "react-router-dom";
 
-function Header({ onToggleSidebar }) {
+function Header({ onToggleSidebar, onLogout }) {
     const { pathname } = useLocation();
+    const [showUserMenu, setShowUserMenu] = useState(false);
+
     const isPatientsPage = pathname === "/patient/" || pathname === "/patients";
     const isRxPage = pathname === "/rx/" || pathname === "/prescriptions";
     const pageTitle = isPatientsPage ? "Danh sách Bệnh Nhân" : isRxPage ? "Đơn thuốc" : "Bảng điều khiển";
+
+    const handleLogout = () => {
+        if (window.confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+            setShowUserMenu(false);
+            onLogout();
+        }
+    };
 
     return (
         <div id="kt_header" className="header align-items-stretch">
@@ -73,11 +83,75 @@ function Header({ onToggleSidebar }) {
                         </div>
                     </div>
 
+                    {/* User menu */}
                     <div className="d-flex align-items-stretch flex-shrink-0">
-                        <div className="d-flex align-items-center ms-1 ms-lg-3" id="kt_header_user_menu_toggle">
-                            <div className="cursor-pointer symbol symbol-30px symbol-md-40px">
+                        <div
+                            className="d-flex align-items-center ms-1 ms-lg-3"
+                            id="kt_header_user_menu_toggle"
+                            style={{ position: "relative" }}
+                        >
+                            <div
+                                className="cursor-pointer symbol symbol-30px symbol-md-40px d-flex align-items-center gap-2"
+                                style={{ cursor: "pointer" }}
+                                onClick={() => setShowUserMenu((v) => !v)}
+                            >
                                 <img src="https://cdn.vicas.vn/media/misc/avatar.jpg" alt="user" />
+                                <span className="d-none d-lg-block text-dark fw-bold fs-7">tienquanlybn</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="d-none d-lg-block" style={{ color: "#999" }}>
+                                    <path d="M7 10l5 5 5-5z"/>
+                                </svg>
                             </div>
+
+                            {showUserMenu && (
+                                <>
+                                    {/* Overlay để đóng menu khi click ngoài */}
+                                    <div
+                                        style={{ position: "fixed", inset: 0, zIndex: 999 }}
+                                        onClick={() => setShowUserMenu(false)}
+                                    />
+                                    <div style={{
+                                        position: "absolute", top: "calc(100% + 10px)", right: 0,
+                                        background: "#fff", borderRadius: "12px",
+                                        boxShadow: "0 8px 30px rgba(0,0,0,0.15)",
+                                        border: "1px solid #f1f1f1",
+                                        minWidth: "200px", zIndex: 1000,
+                                        overflow: "hidden"
+                                    }}>
+                                        {/* User info */}
+                                        <div style={{
+                                            padding: "14px 16px",
+                                            borderBottom: "1px solid #f1f5f9",
+                                            background: "#f8fafc"
+                                        }}>
+                                            <div style={{ fontSize: "13px", fontWeight: 600, color: "#1e293b" }}>tienquanlybn</div>
+                                            <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "2px" }}>Quản trị viên</div>
+                                        </div>
+
+                                        {/* Logout button */}
+                                        <button
+                                            id="logout-btn"
+                                            type="button"
+                                            onClick={handleLogout}
+                                            style={{
+                                                display: "flex", alignItems: "center", gap: "10px",
+                                                width: "100%", padding: "12px 16px",
+                                                background: "none", border: "none",
+                                                textAlign: "left", cursor: "pointer",
+                                                fontSize: "13px", color: "#ef4444",
+                                                fontWeight: 500,
+                                                transition: "background 0.15s"
+                                            }}
+                                            onMouseEnter={(e) => e.currentTarget.style.background = "#fff5f5"}
+                                            onMouseLeave={(e) => e.currentTarget.style.background = "none"}
+                                        >
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M17 7l-1.4 1.4 2.6 2.6H7v2h11.2l-2.6 2.6L17 17l5-5-5-5zm-9 11H6V6h2V4H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h2v-2z"/>
+                                            </svg>
+                                            Đăng xuất
+                                        </button>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

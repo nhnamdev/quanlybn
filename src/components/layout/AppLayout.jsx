@@ -3,7 +3,7 @@ import Sidebar from "../sidebar/Sidebar";
 import Header from "../header/Header";
 import AppFooter from "../layout/AppFooter";
 
-function AppLayout({ children }) {
+function AppLayout({ children, onLogout }) {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
@@ -28,34 +28,29 @@ function AppLayout({ children }) {
 
     const closeMobileSidebar = () => setMobileSidebarOpen(false);
 
-    return ( <
-        div className = "page d-flex flex-row flex-column-fluid" >
-        <
-        Sidebar collapsed = { sidebarCollapsed }
-        mobileOpen = { mobileSidebarOpen }
-        onToggle = { toggleSidebar }
-        onCloseMobile = { closeMobileSidebar }
-        /> <
-        div className = { `wrapper d-flex flex-column flex-row-fluid ${sidebarCollapsed ? "expanded" : ""}` }
-        id = "kt_wrapper" >
-        <
-        Header onToggleSidebar = { toggleSidebar }
-        /> <
-        div className = "content d-flex flex-column flex-column-fluid"
-        id = "kt_content" >
-        <
-        div className = "post d-flex flex-column-fluid"
-        id = "kt_post" >
-        <
-        div id = "kt_content_container"
-        className = "container-fluid responsive-content-pad" > { children } <
-        /div> <
-        /div> <
-        /div> <
-        AppFooter / >
-        <
-        /div> <
-        /div>
+    return (
+        <div className="page d-flex flex-row flex-column-fluid">
+            <Sidebar
+                collapsed={sidebarCollapsed}
+                mobileOpen={mobileSidebarOpen}
+                onToggle={toggleSidebar}
+                onCloseMobile={closeMobileSidebar}
+            />
+            <div
+                className={`wrapper d-flex flex-column flex-row-fluid ${sidebarCollapsed ? "expanded" : ""}`}
+                id="kt_wrapper"
+            >
+                <Header onToggleSidebar={toggleSidebar} onLogout={onLogout} />
+                <div className="content d-flex flex-column flex-column-fluid" id="kt_content">
+                    <div className="post d-flex flex-column-fluid" id="kt_post">
+                        <div id="kt_content_container" className="container-fluid responsive-content-pad">
+                            {children}
+                        </div>
+                    </div>
+                </div>
+                <AppFooter />
+            </div>
+        </div>
     );
 }
 
