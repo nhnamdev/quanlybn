@@ -41,14 +41,14 @@ function PrescriptionsPage() {
             const patient = rx.patients;
             const medicinesText = (rx.prescription_items || []).map((item) => item.medicine_name || "").join(" ");
             const text = [
-                rx.id,
-                rx.prescription_date,
-                patient?.name || "",
-                patient?.gender || "",
-                rx.diagnosis || "",
-                rx.notes || "",
-                medicinesText
-            ]
+                    rx.id,
+                    rx.prescription_date,
+                    patient ? .name || "",
+                    patient ? .gender || "",
+                    rx.diagnosis || "",
+                    rx.notes || "",
+                    medicinesText
+                ]
                 .join(" ")
                 .toLowerCase();
             return text.includes(q);
@@ -60,11 +60,11 @@ function PrescriptionsPage() {
         if (!q) return drugs;
         return drugs.filter((drug) => {
             const text = [
-                drug.registration_number || "",
-                drug.drug_name || "",
-                drug.active_ingredient || "",
-                drug.concentration || ""
-            ]
+                    drug.registration_number || "",
+                    drug.drug_name || "",
+                    drug.active_ingredient || "",
+                    drug.concentration || ""
+                ]
                 .join(" ")
                 .toLowerCase();
             return text.includes(q);
@@ -140,7 +140,7 @@ function PrescriptionsPage() {
         setSelectedDrugItems((prev) =>
             prev.map((item) => {
                 if (item.drug_id !== drugId) return item;
-                const next = { ...item, [field]: value };
+                const next = {...item, [field]: value };
                 const qty = Number(field === "quantity" ? value : next.quantity || 1);
                 const price = Number(field === "unit_price" ? value : next.unit_price || 0);
                 next.quantity = qty;
@@ -151,10 +151,10 @@ function PrescriptionsPage() {
         );
     };
 
-    const openDrugPicker = async (prescription) => {
+    const openDrugPicker = async(prescription) => {
         setSelectedPrescription(prescription);
         setDrugSearchQuery("");
-        setSelectedDiagnosis(prescription?.diagnosis || "");
+        setSelectedDiagnosis(prescription ? .diagnosis || "");
         try {
             const existingItems = await getPrescriptionItems(prescription.id);
             const mapped = (existingItems || []).map((item) => ({
@@ -175,7 +175,7 @@ function PrescriptionsPage() {
         setShowDrugPickerModal(true);
     };
 
-    const savePrescriptionItems = async () => {
+    const savePrescriptionItems = async() => {
         if (!selectedPrescription) return;
         try {
             await updatePrescription(selectedPrescription.id, {
@@ -194,7 +194,7 @@ function PrescriptionsPage() {
 
     const onCreateInputChange = (event) => {
         const { name, value } = event.target;
-        setCreateForm((prev) => ({ ...prev, [name]: value }));
+        setCreateForm((prev) => ({...prev, [name]: value }));
     };
 
     const createPrescriptionId = () => {
@@ -210,20 +210,20 @@ function PrescriptionsPage() {
         return `RX${String(next).padStart(4, "0")}`;
     };
 
-    const handleCreatePrescription = async (event) => {
-        event.preventDefault();
-        if (!createForm.patientId) {
-            window.alert("Vui lòng chọn bệnh nhân.");
-            return;
-        }
+    const handleCreatePrescription = async(event) => {
+            event.preventDefault();
+            if (!createForm.patientId) {
+                window.alert("Vui lòng chọn bệnh nhân.");
+                return;
+            }
 
-        try {
-            const newId = createPrescriptionId();
-            const selectedPatient = patients.find((p) => p.id === createForm.patientId);
-            const patientClinicalNotes = String(selectedPatient?.notes || "").trim();
-            const manualNotes = String(createForm.notes || "").trim();
-            const finalPrescriptionNotes = manualNotes
-                ? `${manualNotes}${patientClinicalNotes ? `\n\n--- Ghi chu lam sang benh nhan ---\n${patientClinicalNotes}` : ""}`
+            try {
+                const newId = createPrescriptionId();
+                const selectedPatient = patients.find((p) => p.id === createForm.patientId);
+                const patientClinicalNotes = String(selectedPatient ? .notes || "").trim();
+                const manualNotes = String(createForm.notes || "").trim();
+                const finalPrescriptionNotes = manualNotes ?
+                    `${manualNotes}${patientClinicalNotes ? `\n\n--- Ghi chu lam sang benh nhan ---\n${patientClinicalNotes}` : ""}`
                 : patientClinicalNotes;
 
             const created = await createPrescription(

@@ -118,7 +118,8 @@ function Sidebar({ collapsed, mobileOpen, onToggle, onCloseMobile }) {
         .trim();
 
     return ( <
-        > {
+        >
+        {
             mobileOpen ? < div className = "sidebar-overlay"
             onClick = { onCloseMobile }
             /> : null} <
@@ -131,7 +132,8 @@ function Sidebar({ collapsed, mobileOpen, onToggle, onCloseMobile }) {
             a href = "/"
             className = "logo-link"
             style = {
-                { margin: "0 auto" } }
+                { margin: "0 auto" }
+            }
             onClick = { onCloseMobile } >
             <
             img alt = "Logo"
@@ -149,10 +151,10 @@ function Sidebar({ collapsed, mobileOpen, onToggle, onCloseMobile }) {
             span className = "svg-icon svg-icon-1 rotate-180" >
             <
             i className = { `fas ${collapsed ? "fa-angle-right" : "fa-angle-left"}` }
-            /> <
-            /span> <
-            /button> <
-            /div>
+            /> < /
+            span > <
+            /button> < /
+            div >
 
             <
             div className = "aside-menu sidebar-menu flex-column-fluid" >
@@ -174,8 +176,8 @@ function Sidebar({ collapsed, mobileOpen, onToggle, onCloseMobile }) {
                     span className = "menu-icon" > < i className = { link.icon }
                     /></span >
                     <
-                    span className = "menu-title" > { link.title } < /span> <
-                    /a> <
+                    span className = "menu-title" > { link.title } < /span> < /
+                    a > <
                     /div>
                 ))
             }
@@ -185,110 +187,111 @@ function Sidebar({ collapsed, mobileOpen, onToggle, onCloseMobile }) {
             <
             div className = "menu-content pt-8 pb-2" >
             <
-            span className = "text-gray-100 text-uppercase fs-8 ls-1" > Chức năng < /span> <
-            /div> <
+            span className = "text-gray-100 text-uppercase fs-8 ls-1" > Chức năng < /span> < /
+            div > <
             /div>
 
             {
                 accordionItems.map((item) => {
-                    const isOpen = openAccordion === item.key;
-                    return ( <
-                        div key = { item.key }
-                        className = { `menu-item menu-accordion ${isOpen ? "active" : ""}` } >
-                        <
-                        button type = "button"
-                        className = "menu-link menu-link-button"
-                        onClick = {
-                            () => setOpenAccordion(isOpen ? "" : item.key) } >
-                        <
-                        span className = "menu-icon" > < i className = { item.icon }
-                        /></span >
-                        <
-                        span className = "menu-title" > { item.title } < /span> <
-                        span className = "menu-arrow" > < i className = "fas fa-chevron-right" / > < /span> <
-                        /button> <
-                        div className = "menu-sub menu-sub-accordion menu-active-bg" > {
-                            item.children.map((child) => ( <
-                                div key = { child.title }
-                                className = "menu-item" >
+                        const isOpen = openAccordion === item.key;
+                        return ( <
+                                div key = { item.key }
+                                className = { `menu-item menu-accordion ${isOpen ? "active" : ""}` } >
                                 <
-                                a className = { `menu-link ${isActivePath(child.href) ? "active" : ""}` }
-                                id = { child.id }
-                                href = { child.href }
-                                title = { child.title }
-                                target = { child.external ? "_blank" : undefined }
-                                rel = { child.external ? "noreferrer" : undefined }
-                                onClick = { child.id === "createPatient2" ? openCreatePatientModal : onCloseMobile } >
+                                button type = "button"
+                                className = "menu-link menu-link-button"
+                                onClick = {
+                                    () => setOpenAccordion(isOpen ? "" : item.key)
+                                } >
                                 <
-                                span className = "menu-icon" > < i className = { child.icon }
+                                span className = "menu-icon" > < i className = { item.icon }
                                 /></span >
                                 <
-                                span className = "menu-title" > { child.title } < /span> {
-                                    child.badge ? ( <
-                                        span className = "menu-badge" > < span className = "badge badge-success" > { child.badge } < /span></span >
-                                    ) : null
-                                } <
-                                /a> <
-                                /div>
-                            ))
-                        } <
-                        /div> <
-                        /div>
+                                span className = "menu-title" > { item.title } < /span> <
+                                span className = "menu-arrow" > < i className = "fas fa-chevron-right" / > < /span> < /
+                                button > <
+                                div className = "menu-sub menu-sub-accordion menu-active-bg" > {
+                                    item.children.map((child) => ( <
+                                            div key = { child.title }
+                                            className = "menu-item" >
+                                            <
+                                            a className = { `menu-link ${isActivePath(child.href) ? "active" : ""}` }
+                                            id = { child.id }
+                                            href = { child.href }
+                                            title = { child.title }
+                                            target = { child.external ? "_blank" : undefined }
+                                            rel = { child.external ? "noreferrer" : undefined }
+                                            onClick = { child.id === "createPatient2" ? openCreatePatientModal : onCloseMobile } >
+                                            <
+                                            span className = "menu-icon" > < i className = { child.icon }
+                                            /></span >
+                                            <
+                                            span className = "menu-title" > { child.title } < /span> {
+                                            child.badge ? ( <
+                                                span className = "menu-badge" > < span className = "badge badge-success" > { child.badge } < /span></span >
+                                            ) : null
+                                        } <
+                                        /a> < /
+                                        div >
+                                    ))
+                            } <
+                            /div> < /
+                            div >
                     );
                 })
-            }
+        }
 
-            <
-            div className = "menu-item" >
-            <
-            div className = "menu-content" >
-            <
-            div className = "separator mx-1 my-4" / >
-            <
-            /div> <
-            /div>
+        <
+        div className = "menu-item" >
+        <
+        div className = "menu-content" >
+        <
+        div className = "separator mx-1 my-4" / >
+        <
+        /div> < /
+        div >
 
-            {
-                footerLinks.map((link) => ( <
-                    div className = "menu-item"
-                    key = { link.title } >
-                    <
-                    a className = "menu-link"
-                    href = { link.href }
-                    title = { link.title }
-                    target = { link.external ? "_blank" : undefined }
-                    rel = { link.external ? "noreferrer" : undefined }
-                    onClick = { onCloseMobile } >
-                    <
-                    span className = "menu-icon" > < i className = { link.icon }
-                    /></span >
-                    <
-                    span className = "menu-title" > { link.title } < /span> <
-                    /a> <
-                    /div>
-                ))
-            } <
-            /div> <
-            /div> <
-            /div>
+        {
+            footerLinks.map((link) => ( <
+                div className = "menu-item"
+                key = { link.title } >
+                <
+                a className = "menu-link"
+                href = { link.href }
+                title = { link.title }
+                target = { link.external ? "_blank" : undefined }
+                rel = { link.external ? "noreferrer" : undefined }
+                onClick = { onCloseMobile } >
+                <
+                span className = "menu-icon" > < i className = { link.icon }
+                /></span >
+                <
+                span className = "menu-title" > { link.title } < /span> < /
+                a > <
+                /div>
+            ))
+        } <
+        /div> < /
+        div > <
+        /div>
 
-            <
-            div className = "aside-footer sidebar-footer flex-column-auto pt-5 pb-7 px-5"
-            id = "kt_aside_footer" >
-            <
-            a href = "https://www.facebook.com/groups/vicas.vn"
-            className = "btn btn-custom btn-primary btn-contact w-100"
-            title = "Liên hệ & Góp Ý"
-            target = "_blank"
-            rel = "noreferrer" >
-            <
-            span className = "btn-label" > Liên hệ & Góp Ý < /span> <
-            span className = "svg-icon btn-icon svg-icon-2 ms-2" > < i className = "fas fa-file-alt" / > < /span> <
-            /a> <
-            /div> <
-            /div> <
-            />
-        );
-    }
+        <
+        div className = "aside-footer sidebar-footer flex-column-auto pt-5 pb-7 px-5"
+        id = "kt_aside_footer" >
+        <
+        a href = "https://www.facebook.com/groups/vicas.vn"
+        className = "btn btn-custom btn-primary btn-contact w-100"
+        title = "Liên hệ & Góp Ý"
+        target = "_blank"
+        rel = "noreferrer" >
+        <
+        span className = "btn-label" > Liên hệ & Góp Ý < /span> <
+        span className = "svg-icon btn-icon svg-icon-2 ms-2" > < i className = "fas fa-file-alt" / > < /span> < /
+        a > <
+        /div> < /
+        div > <
+        />
+    );
+}
 
-    export default Sidebar;
+export default Sidebar;

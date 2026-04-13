@@ -3,10 +3,10 @@ import { examinationTypesQueries } from "../lib/supabaseQueries";
 
 const makeId = (label) =>
     String(label || "")
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "") || `exam-${Date.now()}`;
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "") || `exam-${Date.now()}`;
 
 export const useExaminationTypes = (options = {}) => {
     const includeInactive = options.includeInactive === true;
@@ -34,8 +34,8 @@ export const useExaminationTypes = (options = {}) => {
     }, [fetchExaminationTypes]);
 
     const addExaminationType = useCallback(async(payload) => {
-        const label = String(payload?.label || "").trim();
-        const price = Number(payload?.price) || 0;
+        const label = String(payload ? .label || "").trim();
+        const price = Number(payload ? .price) || 0;
         if (!label) throw new Error("Ten hinh thuc kham khong duoc de trong.");
 
         const idBase = makeId(label);
@@ -58,8 +58,8 @@ export const useExaminationTypes = (options = {}) => {
     }, [examinationTypes]);
 
     const updateExaminationType = useCallback(async(id, payload) => {
-        const label = String(payload?.label || "").trim();
-        const price = Number(payload?.price) || 0;
+        const label = String(payload ? .label || "").trim();
+        const price = Number(payload ? .price) || 0;
         if (!label) throw new Error("Ten hinh thuc kham khong duoc de trong.");
 
         const updated = await examinationTypesQueries.update(id, { label, price });
