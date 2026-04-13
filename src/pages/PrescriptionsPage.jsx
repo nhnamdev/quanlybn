@@ -219,6 +219,13 @@ function PrescriptionsPage() {
 
         try {
             const newId = createPrescriptionId();
+            const selectedPatient = patients.find((p) => p.id === createForm.patientId);
+            const patientClinicalNotes = String(selectedPatient?.notes || "").trim();
+            const manualNotes = String(createForm.notes || "").trim();
+            const finalPrescriptionNotes = manualNotes
+                ? `${manualNotes}${patientClinicalNotes ? `\n\n--- Ghi chu lam sang benh nhan ---\n${patientClinicalNotes}` : ""}`
+                : patientClinicalNotes;
+
             const created = await createPrescription(
                 {
                     id: newId,
@@ -226,12 +233,11 @@ function PrescriptionsPage() {
                     prescription_date: createForm.prescriptionDate,
                     diagnosis: createForm.diagnosis,
                     doctor_name: null,
-                    notes: createForm.notes
+                    notes: finalPrescriptionNotes
                 },
                 []
             );
 
-            const selectedPatient = patients.find((p) => p.id === createForm.patientId);
             const mergedPrescription = {
                 ...created,
                 patients: selectedPatient

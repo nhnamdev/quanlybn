@@ -5,3 +5,5 @@ export { usePrescriptions }
 from './usePrescriptions';
 export { useDrugs }
 from './useDrugs';
+export { useExaminationTypes }
+from './useExaminationTypes';

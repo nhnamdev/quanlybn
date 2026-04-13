@@ -1,5 +1,5 @@
 ﻿import { useMemo, useState } from "react";
-import { usePatients } from "../hooks";
+import { useExaminationTypes, usePatients } from "../hooks";
 
 function PatientsPage() {
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -7,6 +7,11 @@ function PatientsPage() {
     const [viewMoreModal, setViewMoreModal] = useState(false);
     const [viewMoreContent, setViewMoreContent] = useState({ title: "", text: "" });
     const { patients, loading, error, searchPatients, addPatient } = usePatients();
+    const {
+        examinationTypes: examinationOptions,
+        loading: examinationTypesLoading,
+        error: examinationTypesError
+    } = useExaminationTypes();
 
     const [formData, setFormData] = useState({
         name: "",
@@ -15,20 +20,21 @@ function PatientsPage() {
         address: "",
         phone_number: "",
         identity_number: "",
+        note_height: "",
+        note_weight: "",
+        note_blood_pressure: "",
+        note_history: "",
+        note_parity: "",
+        note_gestational_age: "",
+        note_due_date: "",
+        note_extra: "",
         notes: "",
         examination_types: []
     });
 
-    const examinationOptions = [
-        { label: "Siêu âm", value: "ultrasound", price: 80000 },
-        { label: "Kiểm tra máu", value: "blood_test", price: 50000 },
-        { label: "Nội soi", value: "endoscopy", price: 500000 },
-        { label: "Chụp phim", value: "xray", price: 120000 }
-    ];
-
     const baseFee = 50000;
     const totalExaminationCost = formData.examination_types.reduce((sum, type) => {
-        const option = examinationOptions.find((o) => o.value === type);
+        const option = examinationOptions.find((o) => o.id === type);
         return sum + (option ? option.price : 0);
     }, 0);
     const totalCost = baseFee + totalExaminationCost;
@@ -162,7 +168,7 @@ function PatientsPage() {
         const examinationList = examinationTypes
             ? examinationTypes
                   .map((type) => {
-                      const option = examinationOptions.find((o) => o.value === type);
+                      const option = examinationOptions.find((o) => o.id === type);
                       return `<tr><td>${option?.label || type}</td><td style="text-align: right">${Number(option?.price || 0).toLocaleString("vi-VN")} đ</td></tr>`;
                   })
                   .join("")
@@ -170,7 +176,7 @@ function PatientsPage() {
 
         const patientExamCost = examinationTypes
             ? examinationTypes.reduce((sum, type) => {
-                  const option = examinationOptions.find((o) => o.value === type);
+                                    const option = examinationOptions.find((o) => o.id === type);
                   return sum + (option ? option.price : 0);
               }, 0)
             : 0;
@@ -200,6 +206,32 @@ function PatientsPage() {
         });
     };
 
+    const buildStructuredNotes = (values) => {
+        const sections = [
+            { label: "Chieu cao", value: values.note_height },
+            { label: "Can nang", value: values.note_weight },
+            { label: "Huyet ap", value: values.note_blood_pressure },
+            { label: "Tien can", value: values.note_history },
+            { label: "Con may lan", value: values.note_parity },
+            { label: "Tuoi thai", value: values.note_gestational_age },
+            { label: "Du sinh", value: values.note_due_date }
+        ]
+            .filter((item) => String(item.value || "").trim())
+            .map((item) => `${item.label}: ${String(item.value).trim()}`);
+
+        const extraNote = String(values.note_extra || "").trim();
+        if (extraNote) {
+            sections.push(`Ghi chu them:\n${extraNote}`);
+        }
+
+        const legacyNote = String(values.notes || "").trim();
+        if (legacyNote) {
+            sections.push(`Ghi chu cu:\n${legacyNote}`);
+        }
+
+        return sections.join("\n");
+    };
+
     const handleCreatePatient = async (event) => {
         event.preventDefault();
         try {
@@ -217,7 +249,7 @@ function PatientsPage() {
                 phone_number: formData.phone_number,
                 address: formData.address,
                 identity_number: formData.identity_number,
-                notes: formData.notes,
+                notes: buildStructuredNotes(formData),
                 examination_types: JSON.stringify(formData.examination_types)
             });
 
@@ -228,6 +260,14 @@ function PatientsPage() {
                 address: "",
                 phone_number: "",
                 identity_number: "",
+                note_height: "",
+                note_weight: "",
+                note_blood_pressure: "",
+                note_history: "",
+                note_parity: "",
+                note_gestational_age: "",
+                note_due_date: "",
+                note_extra: "",
                 notes: "",
                 examination_types: []
             });
@@ -435,21 +475,59 @@ function PatientsPage() {
                                             <input type="text" className="form-control" name="identity_number" value={formData.identity_number} onChange={onInputChange} />
                                         </div>
                                         <div className="mb-3">
-                                            <label className="form-label">Ghi chu</label>
-                                            <textarea className="form-control" name="notes" rows="3" value={formData.notes} onChange={onInputChange}></textarea>
+                                            <label className="form-label">Ghi chu thai san</label>
+                                            <div className="row g-3">
+                                                <div className="col-md-4">
+                                                    <label className="form-label">Chieu cao</label>
+                                                    <input type="text" className="form-control" name="note_height" value={formData.note_height} onChange={onInputChange} placeholder="Vi du: 160 cm" />
+                                                </div>
+                                                <div className="col-md-4">
+                                                    <label className="form-label">Can nang</label>
+                                                    <input type="text" className="form-control" name="note_weight" value={formData.note_weight} onChange={onInputChange} placeholder="Vi du: 55 kg" />
+                                                </div>
+                                                <div className="col-md-4">
+                                                    <label className="form-label">Huyet ap</label>
+                                                    <input type="text" className="form-control" name="note_blood_pressure" value={formData.note_blood_pressure} onChange={onInputChange} placeholder="Vi du: 120/80" />
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <label className="form-label">Tien can</label>
+                                                    <input type="text" className="form-control" name="note_history" value={formData.note_history} onChange={onInputChange} placeholder="Tien can benh ly" />
+                                                </div>
+                                                <div className="col-md-3">
+                                                    <label className="form-label">Con may lan</label>
+                                                    <input type="text" className="form-control" name="note_parity" value={formData.note_parity} onChange={onInputChange} placeholder="Vi du: con lan 2" />
+                                                </div>
+                                                <div className="col-md-3">
+                                                    <label className="form-label">Tuoi thai</label>
+                                                    <input type="text" className="form-control" name="note_gestational_age" value={formData.note_gestational_age} onChange={onInputChange} placeholder="Vi du: 32 tuan" />
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <label className="form-label">Du sinh</label>
+                                                    <input type="date" className="form-control" name="note_due_date" value={formData.note_due_date} onChange={onInputChange} />
+                                                </div>
+                                                <div className="col-md-12">
+                                                    <label className="form-label">Ghi chu them</label>
+                                                    <textarea className="form-control" name="note_extra" rows="3" value={formData.note_extra} onChange={onInputChange} placeholder="Nhap noi dung ghi chu dai..."></textarea>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <div className="mb-3">
                                             <label className="form-label">Chọn hình thức khám</label>
                                             <div style={{ border: "1px solid #ccc", borderRadius: "4px", padding: "8px", maxHeight: "150px", overflowY: "auto" }}>
+                                                {examinationTypesLoading && <div className="text-muted">Dang tai danh sach...</div>}
+                                                {examinationTypesError && <div className="text-danger">Loi tai danh sach hinh thuc kham.</div>}
                                                 {examinationOptions.map((option) => (
-                                                    <div key={option.value} className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id={`exam_${option.value}`} checked={formData.examination_types.includes(option.value)} onChange={() => onExaminationChange(option.value)} />
-                                                        <label className="form-check-label" htmlFor={`exam_${option.value}`}>
+                                                    <div key={option.id} className="form-check">
+                                                        <input className="form-check-input" type="checkbox" id={`exam_${option.id}`} checked={formData.examination_types.includes(option.id)} onChange={() => onExaminationChange(option.id)} />
+                                                        <label className="form-check-label" htmlFor={`exam_${option.id}`}>
                                                             {option.label} - {Number(option.price).toLocaleString("vi-VN")} đ
                                                         </label>
                                                     </div>
                                                 ))}
+                                                {!examinationTypesLoading && examinationOptions.length === 0 && (
+                                                    <div className="text-muted">Chua co hinh thuc kham nao.</div>
+                                                )}
                                             </div>
                                         </div>
 

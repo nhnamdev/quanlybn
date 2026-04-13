@@ -5,6 +5,7 @@ import PatientsPage from "./pages/PatientsPage";
 import DrugsPage from "./pages/DrugsPage";
 import PrescriptionsPage from "./pages/PrescriptionsPage";
 import ReportsPage from "./pages/ReportsPage";
+import ExaminationTypesPage from "./pages/ExaminationTypesPage";
 
 function PlaceholderPage({ title }) {
     return (
@@ -47,7 +48,7 @@ function App() {
                 <Route path="/checkxray/" element={<PlaceholderPage title="Goi y chan doan XQuang Nguc" />} />
                 <Route path="/checkhi/" element={<PlaceholderPage title="Thong tin BHYT" />} />
                 <Route path="/drug-interactions/" element={<PlaceholderPage title="Tra cuu tuong tac thuoc" />} />
-                <Route path="/paraclinical/" element={<PlaceholderPage title="Danh muc ky thuat" />} />
+                <Route path="/paraclinical/" element={<ExaminationTypesPage />} />
 
                 <Route path="/tutorial/" element={<PlaceholderPage title="Huong dan su dung" />} />
                 <Route path="/account/settings" element={<PlaceholderPage title="Cai dat tai khoan" />} />

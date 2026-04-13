@@ -68,7 +68,7 @@ const accordionItems = [{
         children: [
             { href: "/account/settings", title: "Cài đặt tài khoản", icon: "fas fa-user-cog" },
             { href: "/drugs/", title: "Tủ thuốc", icon: "fas fa-pills" },
-            { href: "/paraclinical/", title: "Danh mục kỹ thuật", icon: "fas fa-skull" }
+            { href: "/paraclinical/", title: "Các hình thức khám", icon: "fas fa-skull" }
         ]
     }
 ];

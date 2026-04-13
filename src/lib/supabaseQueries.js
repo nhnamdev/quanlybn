@@ -94,6 +94,70 @@ export const patientsQueries = {
     }
 };
 
+// ============= EXAMINATION TYPES =============
+export const examinationTypesQueries = {
+    getAll: async(includeInactive = false) => {
+        let query = supabase
+            .from('examination_types')
+            .select('*')
+            .order('sort_order', { ascending: true })
+            .order('created_at', { ascending: true });
+
+        if (!includeInactive) {
+            query = query.eq('is_active', true);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+        return data || [];
+    },
+
+    create: async(payload) => {
+        const { data, error } = await supabase
+            .from('examination_types')
+            .insert([{
+                id: payload.id,
+                label: payload.label,
+                price: Number(payload.price) || 0,
+                sort_order: Number(payload.sort_order) || 0,
+                is_active: true
+            }])
+            .select()
+            .single();
+        if (error) throw error;
+        return data;
+    },
+
+    update: async(id, payload) => {
+        const { data, error } = await supabase
+            .from('examination_types')
+            .update({
+                label: payload.label,
+                price: Number(payload.price) || 0,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', id)
+            .select()
+            .single();
+        if (error) throw error;
+        return data;
+    },
+
+    setActive: async(id, isActive) => {
+        const { data, error } = await supabase
+            .from('examination_types')
+            .update({
+                is_active: isActive,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', id)
+            .select()
+            .single();
+        if (error) throw error;
+        return data;
+    }
+};
+
 // ============= PRESCRIPTIONS =============
 export const prescriptionsQueries = {
     // Get all prescriptions with patient info
