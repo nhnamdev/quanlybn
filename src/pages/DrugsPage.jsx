@@ -6,6 +6,8 @@ function DrugsPage() {
     const { drugs, loading, error, searchDrugs, addDrug } = useDrugs();
     const [searchQuery, setSearchQuery] = useState("");
     const [showImportModal, setShowImportModal] = useState(false);
+    const [importFile, setImportFile] = useState(null);
+    const [isImporting, setIsImporting] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showNotesModal, setShowNotesModal] = useState(false);
     const [notesText, setNotesText] = useState("");
@@ -183,6 +185,123 @@ function DrugsPage() {
         }
     };
 
+    const normalizeHeader = (value) =>
+        String(value || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim()
+            .toLowerCase();
+
+    const toNumberOrDefault = (value, defaultValue = 0) => {
+        if (value === null || value === undefined || value === "") return defaultValue;
+        const normalized = String(value).replace(/,/g, "").trim();
+        const parsed = Number(normalized);
+        return Number.isFinite(parsed) ? parsed : defaultValue;
+    };
+
+    const mapImportedRow = (row) => {
+        const byHeader = {};
+        Object.entries(row || {}).forEach(([key, value]) => {
+            byHeader[normalizeHeader(key)] = value;
+        });
+
+        const getField = (aliases) => {
+            for (const alias of aliases) {
+                const normalizedAlias = normalizeHeader(alias);
+                if (Object.prototype.hasOwnProperty.call(byHeader, normalizedAlias)) {
+                    return byHeader[normalizedAlias];
+                }
+            }
+            return "";
+        };
+
+        const registrationNumber = String(getField(["Mã đăng ký", "So dang ky", "registration_number"]) || "").trim();
+        const drugName = String(getField(["Tên thuốc", "Ten thuoc", "drug_name"]) || "").trim();
+
+        return {
+            registration_number: registrationNumber,
+            drug_name: drugName,
+            active_ingredient: String(getField(["Hoạt chất", "Hoat chat", "active_ingredient"]) || "").trim(),
+            concentration: String(getField(["Hàm lượng", "Ham luong", "concentration"]) || "").trim(),
+            route: String(getField(["Đường dùng", "Duong dung", "route"]) || "").trim(),
+            quantity: toNumberOrDefault(getField(["Số lượng", "So luong", "quantity"]), 0),
+            unit: String(getField(["Đơn vị", "Don vi", "unit"]) || "").trim(),
+            price: (() => {
+                const raw = getField(["Giá", "Gia", "price"]);
+                if (raw === "" || raw === null || raw === undefined) return null;
+                const parsed = toNumberOrDefault(raw, NaN);
+                return Number.isFinite(parsed) ? parsed : null;
+            })(),
+            notes: String(getField(["Ghi chú", "Ghi chu", "notes"]) || "").trim()
+        };
+    };
+
+    const resetImportState = () => {
+        setImportFile(null);
+        setIsImporting(false);
+    };
+
+    const handleImportDrugs = async () => {
+        if (!importFile) {
+            window.alert("Vui lòng chọn file Excel/CSV để nhập.");
+            return;
+        }
+
+        try {
+            setIsImporting(true);
+            const buffer = await importFile.arrayBuffer();
+            const workbook = XLSX.read(buffer, { type: "array" });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+
+            if (!rows.length) {
+                window.alert("File không có dữ liệu để nhập.");
+                setIsImporting(false);
+                return;
+            }
+
+            const parsedRows = rows.map(mapImportedRow);
+            const validRows = [];
+            const invalidRows = [];
+
+            parsedRows.forEach((row, index) => {
+                if (!row.registration_number || !row.drug_name) {
+                    invalidRows.push(index + 2);
+                    return;
+                }
+                validRows.push(row);
+            });
+
+            if (!validRows.length) {
+                window.alert("Không có dòng hợp lệ. Cần tối thiểu Mã đăng ký và Tên thuốc.");
+                setIsImporting(false);
+                return;
+            }
+
+            let successCount = 0;
+            let failCount = 0;
+
+            for (const row of validRows) {
+                try {
+                    await addDrug(row);
+                    successCount += 1;
+                } catch {
+                    failCount += 1;
+                }
+            }
+
+            await searchDrugs(searchQuery);
+            setShowImportModal(false);
+            resetImportState();
+
+            const invalidText = invalidRows.length ? `, bỏ qua ${invalidRows.length} dòng thiếu dữ liệu bắt buộc` : "";
+            window.alert(`Nhập hoàn tất: ${successCount} thành công, ${failCount} thất bại${invalidText}.`);
+        } catch (importError) {
+            setIsImporting(false);
+            window.alert(`Lỗi đọc file/import: ${importError.message}`);
+        }
+    };
+
     return (
         <div className="card">
             <div className="card-header border-0 pt-6">
@@ -314,23 +433,49 @@ function DrugsPage() {
                             <div className="modal-content">
                                 <div className="modal-header">
                                     <h5 className="modal-title">Nhập thuốc từ Excel</h5>
-                                    <button type="button" className="btn-close" onClick={() => setShowImportModal(false)} aria-label="Close"></button>
+                                    <button
+                                        type="button"
+                                        className="btn-close"
+                                        onClick={() => {
+                                            setShowImportModal(false);
+                                            resetImportState();
+                                        }}
+                                        aria-label="Close"
+                                    ></button>
                                 </div>
                                 <div className="modal-body">
                                     <p className="text-muted mb-3">Vui lòng chọn file để nhập dữ liệu.</p>
-                                    <input type="file" className="form-control" accept=".xlsx,.xls,.csv" />
+                                    <input
+                                        type="file"
+                                        className="form-control"
+                                        accept=".xlsx,.xls,.csv"
+                                        onChange={(event) => setImportFile(event.target.files?.[0] || null)}
+                                    />
+                                    {importFile && (
+                                        <div className="mt-2 text-muted fs-7">
+                                            File đã chọn: <strong>{importFile.name}</strong>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="modal-footer">
-                                    <button type="button" className="btn btn-light" onClick={() => setShowImportModal(false)}>Đóng</button>
+                                    <button
+                                        type="button"
+                                        className="btn btn-light"
+                                        onClick={() => {
+                                            setShowImportModal(false);
+                                            resetImportState();
+                                        }}
+                                        disabled={isImporting}
+                                    >
+                                        Đóng
+                                    </button>
                                     <button
                                         type="button"
                                         className="btn btn-primary"
-                                        onClick={() => {
-                                            window.alert("Chức năng nhập Excel đang được phát triển.");
-                                            setShowImportModal(false);
-                                        }}
+                                        onClick={handleImportDrugs}
+                                        disabled={isImporting}
                                     >
-                                        Nhập
+                                        {isImporting ? "Đang nhập..." : "Nhập"}
                                     </button>
                                 </div>
                             </div>
