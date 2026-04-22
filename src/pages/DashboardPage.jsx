@@ -1,7 +1,7 @@
-import DashboardContentExact from "../components/dashboard/DashboardContentExact";
+import DashboardLive from "../components/dashboard/DashboardLive";
 
 function DashboardPage() {
-    return <DashboardContentExact / > ;
+    return <DashboardLive />;
 }
 
 export default DashboardPage;
