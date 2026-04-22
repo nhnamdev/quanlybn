@@ -1,21 +1,66 @@
 ﻿import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { usePrescriptions } from "../hooks";
+import * as XLSX from "xlsx";
+import { useExaminationTypes, usePrescriptions } from "../hooks";
 
 function ReportsPage() {
     const navigate = useNavigate();
     const { prescriptions, loading, error } = usePrescriptions();
+    const { examinationTypes } = useExaminationTypes();
 
     const [searchQuery, setSearchQuery] = useState("");
     const [monthFilter, setMonthFilter] = useState("");
     const [modalShow, setModalShow] = useState(false);
     const [modalContent, setModalContent] = useState({ title: "", text: "" });
 
-    const genderLabel = (value) => (value === "F" ? "Nữ" : "Nam");
-
     const truncateText = (text, maxLength = 40) => {
         if (!text) return "-";
         return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
+    };
+
+    const getBirthYear = (dob) => {
+        if (!dob) return "";
+        const value = String(dob);
+        const match = value.match(/^(\d{4})/);
+        return match ? match[1] : value;
+    };
+
+    const getMedicineList = (prescription) => {
+        const items = prescription?.prescription_items || [];
+        const medicines = items.map((item) => item?.medicine_name).filter(Boolean);
+        return medicines.length ? medicines.join(", ") : "";
+    };
+
+    const getVisitTotal = (prescription) => {
+        const baseExamFee = 50000;
+        const items = prescription?.prescription_items || [];
+        const medicineTotal = items.reduce((sum, item) => {
+            const explicitTotal = Number(item?.line_total);
+            if (Number.isFinite(explicitTotal) && explicitTotal > 0) return sum + explicitTotal;
+            const quantity = Number(item?.quantity || 0);
+            const unitPrice = Number(item?.unit_price || 0);
+            return sum + quantity * unitPrice;
+        }, 0);
+
+        let selectedExaminationTypes = [];
+        const rawExaminationTypes = prescription?.patients?.examination_types;
+        if (Array.isArray(rawExaminationTypes)) {
+            selectedExaminationTypes = rawExaminationTypes;
+        } else if (typeof rawExaminationTypes === "string" && rawExaminationTypes.trim()) {
+            try {
+                const parsed = JSON.parse(rawExaminationTypes);
+                if (Array.isArray(parsed)) selectedExaminationTypes = parsed;
+            } catch {
+                selectedExaminationTypes = [];
+            }
+        }
+
+        const paraclinicalTotal = selectedExaminationTypes.reduce((sum, typeId) => {
+            const typeOption = examinationTypes.find((item) => item.id === typeId);
+            return sum + Number(typeOption?.price || 0);
+        }, 0);
+
+        return medicineTotal + baseExamFee + paraclinicalTotal;
     };
 
     const showModal = (title, content) => {
@@ -35,10 +80,10 @@ function ReportsPage() {
             const text = [
                 rx.prescription_date || "",
                 rx.patients?.name || "",
-                rx.patients?.gender ? genderLabel(rx.patients.gender) : "",
-                rx.patients?.dob || "",
+                getBirthYear(rx.patients?.dob) || "",
                 rx.diagnosis || "",
-                rx.notes || ""
+                getMedicineList(rx) || "",
+                String(getVisitTotal(rx) || "")
             ]
                 .join(" ")
                 .toLowerCase();
@@ -47,18 +92,22 @@ function ReportsPage() {
         });
     }, [prescriptions, searchQuery, monthFilter]);
 
-    const toCsv = (rows) => {
-        const headers = ["Ngày", "Họ và Tên", "Giới", "Năm sinh", "Chẩn đoán", "Điều trị"];
+    const getExportRows = (rows) => {
+        const headers = ["Ngày", "Họ và Tên", "Năm sinh", "Chẩn đoán", "Thuốc", "Tổng tiền"];
         const body = rows.map((row) => [
             row.prescription_date || "",
             row.patients?.name || "",
-            row.patients?.gender ? genderLabel(row.patients.gender) : "",
-            row.patients?.dob || "",
+            getBirthYear(row.patients?.dob) || "",
             row.diagnosis || "",
-            row.notes || ""
+            getMedicineList(row) || "",
+            getVisitTotal(row)
         ]);
 
-        return [headers, ...body]
+        return [headers, ...body];
+    };
+
+    const toCsv = (rows) => {
+        return getExportRows(rows)
             .map((cols) => cols.map((col) => `"${String(col ?? "").replace(/"/g, '""')}"`).join(","))
             .join("\n");
     };
@@ -77,24 +126,57 @@ function ReportsPage() {
 
     const handleExcel = () => {
         if (!ensureRows()) return;
-        const blob = new Blob([`\uFEFF${toCsv(reportRows)}`], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement("a");
-        anchor.href = url;
-        anchor.download = "bao-cao-kham-benh.csv";
-        anchor.click();
-        URL.revokeObjectURL(url);
+        const headers = ["Ngày", "Họ và Tên", "Năm sinh", "Chẩn đoán", "Thuốc", "Tổng tiền"];
+        const body = reportRows.map((row) => {
+            const parsedDate = row.prescription_date ? new Date(row.prescription_date) : null;
+            const dateCell = parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate : row.prescription_date || "";
+            return [
+                dateCell,
+                row.patients?.name || "",
+                getBirthYear(row.patients?.dob) || "",
+                row.diagnosis || "",
+                getMedicineList(row) || "",
+                Number(getVisitTotal(row) || 0)
+            ];
+        });
+
+        const worksheet = XLSX.utils.aoa_to_sheet([headers, ...body], { cellDates: true });
+        worksheet["!cols"] = [
+            { wch: 13 },
+            { wch: 24 },
+            { wch: 10 },
+            { wch: 26 },
+            { wch: 40 },
+            { wch: 16 }
+        ];
+
+        for (let rowIndex = 2; rowIndex <= body.length + 1; rowIndex += 1) {
+            const dateCell = worksheet[`A${rowIndex}`];
+            if (dateCell && (dateCell.t === "d" || dateCell.t === "n")) {
+                dateCell.z = "dd/mm/yyyy";
+            }
+
+            const totalCell = worksheet[`F${rowIndex}`];
+            if (totalCell) {
+                totalCell.t = "n";
+                totalCell.z = "#,##0\ \"đ\"";
+            }
+        }
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Bao cao kham benh");
+        XLSX.writeFile(workbook, "bao-cao-kham-benh.xlsx");
     };
 
     const openPrintableWindow = (title) => {
         const tableRows = reportRows
             .map(
                 (row) =>
-                    `<tr><td>${row.prescription_date || ""}</td><td>${row.patients?.name || ""}</td><td>${row.patients?.gender ? genderLabel(row.patients.gender) : ""}</td><td>${row.patients?.dob || ""}</td><td>${row.diagnosis || ""}</td><td>${row.notes || ""}</td></tr>`
+                    `<tr><td>${row.prescription_date || ""}</td><td>${row.patients?.name || ""}</td><td>${getBirthYear(row.patients?.dob) || ""}</td><td>${row.diagnosis || ""}</td><td>${getMedicineList(row) || ""}</td><td>${Number(getVisitTotal(row) || 0).toLocaleString("vi-VN")} đ</td></tr>`
             )
             .join("");
 
-        const html = `<!doctype html><html lang="vi"><head><meta charset="UTF-8"/><title>${title}</title><style>body{font-family:Arial,sans-serif;padding:24px;}h2{margin-bottom:16px;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #d1d5db;padding:8px;font-size:13px;}th{background:#f3f4f6;text-align:left;}</style></head><body><h2>${title}</h2><table><thead><tr><th>Ngày</th><th>Họ và Tên</th><th>Giới</th><th>Năm sinh</th><th>Chẩn đoán</th><th>Điều trị</th></tr></thead><tbody>${tableRows}</tbody></table></body></html>`;
+        const html = `<!doctype html><html lang="vi"><head><meta charset="UTF-8"/><title>${title}</title><style>body{font-family:Arial,sans-serif;padding:24px;}h2{margin-bottom:16px;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #d1d5db;padding:8px;font-size:13px;}th{background:#f3f4f6;text-align:left;}</style></head><body><h2>${title}</h2><table><thead><tr><th>Ngày</th><th>Họ và Tên</th><th>Năm sinh</th><th>Chẩn đoán</th><th>Thuốc</th><th>Tổng tiền</th></tr></thead><tbody>${tableRows}</tbody></table></body></html>`;
 
         const printWindow = window.open("", "_blank", "width=1100,height=760");
         if (!printWindow) return;
@@ -223,17 +305,16 @@ function ReportsPage() {
                                     <tr className="text-start text-gray-900 fw-bolder fs-7 text-uppercase gs-0">
                                         <th style={{ width: "90px" }}>Ngày</th>
                                         <th style={{ width: "150px" }}>Họ &amp; Tên</th>
-                                        <th style={{ width: "60px" }}>Giới</th>
                                         <th style={{ width: "80px" }}>Năm sinh</th>
                                         <th style={{ width: "150px" }}>Chẩn đoán</th>
-                                        <th style={{ width: "150px" }}>Điều trị</th>
-                                        <th className="text-end" style={{ width: "80px" }}>Thao tác</th>
+                                        <th style={{ width: "200px" }}>Thuốc</th>
+                                        <th className="text-end" style={{ width: "120px" }}>Tổng tiền</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {reportRows.length === 0 ? (
                                         <tr className="odd">
-                                            <td valign="top" colSpan="7" className="dataTables_empty">
+                                            <td valign="top" colSpan="6" className="dataTables_empty">
                                                 Không có dữ liệu
                                             </td>
                                         </tr>
@@ -242,8 +323,7 @@ function ReportsPage() {
                                             <tr key={row.id} className="odd">
                                                 <td>{row.prescription_date || "-"}</td>
                                                 <td>{row.patients?.name || "-"}</td>
-                                                <td>{row.patients?.gender ? genderLabel(row.patients.gender) : "-"}</td>
-                                                <td>{row.patients?.dob || "-"}</td>
+                                                <td>{getBirthYear(row.patients?.dob) || "-"}</td>
                                                 <td>
                                                     <div className="d-flex align-items-center gap-2">
                                                         <span>{truncateText(row.diagnosis, 40)}</span>
@@ -260,11 +340,11 @@ function ReportsPage() {
                                                 </td>
                                                 <td>
                                                     <div className="d-flex align-items-center gap-2">
-                                                        <span>{truncateText(row.notes, 40)}</span>
-                                                        {row.notes && row.notes.length > 40 && (
+                                                        <span>{truncateText(getMedicineList(row), 40)}</span>
+                                                        {getMedicineList(row) && getMedicineList(row).length > 40 && (
                                                             <button
                                                                 className="btn btn-xs btn-light-primary"
-                                                                onClick={() => showModal("Điều trị", row.notes)}
+                                                                onClick={() => showModal("Thuốc", getMedicineList(row))}
                                                                 title="Xem thêm"
                                                             >
                                                                 <i className="fas fa-eye" style={{ fontSize: "12px" }}></i>
@@ -272,7 +352,7 @@ function ReportsPage() {
                                                         )}
                                                     </div>
                                                 </td>
-                                                <td className="text-end">-</td>
+                                                <td className="text-end fw-semibold">{Number(getVisitTotal(row) || 0).toLocaleString("vi-VN")} đ</td>
                                             </tr>
                                         ))
                                     )}

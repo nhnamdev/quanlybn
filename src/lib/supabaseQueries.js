@@ -166,8 +166,8 @@ export const prescriptionsQueries = {
             .from('prescriptions')
             .select(`
                 *,
-                patients:patient_id(name, dob, gender, phone_number),
-                prescription_items(medicine_name)
+                patients:patient_id(name, dob, gender, phone_number, examination_types),
+                prescription_items(medicine_name, quantity, unit_price, line_total)
             `)
             .order('prescription_date', { ascending: false });
         if (error) throw error;

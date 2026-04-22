@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import * as XLSX from "xlsx";
 import { useDrugs } from "../hooks";
 
 function DrugsPage() {
@@ -35,7 +36,7 @@ function DrugsPage() {
         return text.length > length ? `${text.slice(0, length)}...` : text;
     };
 
-    const toCsv = (rows) => {
+    const getExportRows = (rows) => {
         const headers = ["Mã đăng ký", "Tên thuốc", "Hoạt chất", "Hàm lượng", "Đường dùng", "Số lượng", "Đơn vị", "Giá", "Ghi chú"];
         const body = rows.map((row) => [
             row.registration_number || "",
@@ -49,7 +50,11 @@ function DrugsPage() {
             row.notes || ""
         ]);
 
-        return [headers, ...body]
+        return [headers, ...body];
+    };
+
+    const toCsv = (rows) => {
+        return getExportRows(rows)
             .map((cols) => cols.map((col) => `"${String(col ?? "").replace(/"/g, '""')}"`).join(","))
             .join("\n");
     };
@@ -73,13 +78,49 @@ function DrugsPage() {
 
     const handleExcel = () => {
         if (!ensureRows()) return;
-        const blob = new Blob([`\uFEFF${toCsv(filteredDrugs)}`], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement("a");
-        anchor.href = url;
-        anchor.download = "danh-sach-thuoc.csv";
-        anchor.click();
-        URL.revokeObjectURL(url);
+        const headers = ["Mã đăng ký", "Tên thuốc", "Hoạt chất", "Hàm lượng", "Đường dùng", "Số lượng", "Đơn vị", "Giá", "Ghi chú"];
+        const body = filteredDrugs.map((row) => [
+            row.registration_number || "",
+            row.drug_name || "",
+            row.active_ingredient || "",
+            row.concentration || "",
+            row.route || "",
+            Number(row.quantity || 0),
+            row.unit || "",
+            Number(row.price || 0),
+            row.notes || ""
+        ]);
+
+        const worksheet = XLSX.utils.aoa_to_sheet([headers, ...body]);
+        worksheet["!cols"] = [
+            { wch: 16 },
+            { wch: 30 },
+            { wch: 24 },
+            { wch: 14 },
+            { wch: 14 },
+            { wch: 10 },
+            { wch: 10 },
+            { wch: 14 },
+            { wch: 32 }
+        ];
+
+        for (let rowIndex = 2; rowIndex <= body.length + 1; rowIndex += 1) {
+            const quantityCell = worksheet[`F${rowIndex}`];
+            if (quantityCell) {
+                quantityCell.t = "n";
+                quantityCell.z = "#,##0";
+            }
+
+            const priceCell = worksheet[`H${rowIndex}`];
+            if (priceCell) {
+                priceCell.t = "n";
+                priceCell.z = "#,##0\ \"đ\"";
+            }
+        }
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sach thuoc");
+        XLSX.writeFile(workbook, "danh-sach-thuoc.xlsx");
     };
 
     const handlePrint = () => {

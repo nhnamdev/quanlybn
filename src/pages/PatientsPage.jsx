@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import * as XLSX from "xlsx";
 import { useExaminationTypes, usePatients } from "../hooks";
 
 function PatientsPage() {
@@ -70,7 +71,7 @@ function PatientsPage() {
         setViewMoreModal(true);
     };
 
-    const toCsv = (rows) => {
+    const getExportRows = (rows) => {
         const headers = ["ID", "Họ và Tên", "Giới", "Ngày sinh", "Địa chỉ", "Điện thoại"];
         const lines = rows.map((row) => [
             row.id,
@@ -80,20 +81,15 @@ function PatientsPage() {
             row.address || "",
             row.phone_number || ""
         ]);
-        const allRows = [headers, ...lines];
+
+        return [headers, ...lines];
+    };
+
+    const toCsv = (rows) => {
+        const allRows = getExportRows(rows);
         return allRows
             .map((cols) => cols.map((col) => `"${String(col ?? "").replace(/"/g, '""')}"`).join(","))
             .join("\n");
-    };
-
-    const downloadTextFile = (content, filename, mimeType) => {
-        const blob = new Blob([content], { type: mimeType });
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement("a");
-        anchor.href = url;
-        anchor.download = filename;
-        anchor.click();
-        URL.revokeObjectURL(url);
     };
 
     const ensureRows = () => {
@@ -111,9 +107,40 @@ function PatientsPage() {
 
     const handleExcel = () => {
         if (!ensureRows()) return;
-        const bom = "\uFEFF";
-        const csv = toCsv(filteredPatients);
-        downloadTextFile(`${bom}${csv}`, "danh-sach-benh-nhan.csv", "text/csv;charset=utf-8;");
+        const headers = ["ID", "Họ và Tên", "Giới", "Ngày sinh", "Địa chỉ", "Điện thoại"];
+        const body = filteredPatients.map((row) => {
+            const parsedDob = row.dob ? new Date(row.dob) : null;
+            const dobCell = parsedDob && !Number.isNaN(parsedDob.getTime()) ? parsedDob : row.dob || "";
+            return [
+                row.id,
+                row.name,
+                genderLabel(row.gender),
+                dobCell,
+                row.address || "",
+                row.phone_number || ""
+            ];
+        });
+
+        const worksheet = XLSX.utils.aoa_to_sheet([headers, ...body], { cellDates: true });
+        worksheet["!cols"] = [
+            { wch: 12 },
+            { wch: 24 },
+            { wch: 10 },
+            { wch: 14 },
+            { wch: 32 },
+            { wch: 16 }
+        ];
+
+        for (let rowIndex = 2; rowIndex <= body.length + 1; rowIndex += 1) {
+            const dobCell = worksheet[`D${rowIndex}`];
+            if (dobCell && (dobCell.t === "d" || dobCell.t === "n")) {
+                dobCell.z = "dd/mm/yyyy";
+            }
+        }
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sach benh nhan");
+        XLSX.writeFile(workbook, "danh-sach-benh-nhan.xlsx");
     };
 
     const openPrintableWindow = (title) => {
