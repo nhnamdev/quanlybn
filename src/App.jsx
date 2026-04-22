@@ -60,7 +60,6 @@ function App() {
                 <Route path="/checkhi/" element={<PlaceholderPage title="Thông tin BHYT" />} />
                 <Route path="/drug-interactions/" element={<PlaceholderPage title="Tra cứu tương tác thuốc" />} />
                 <Route path="/paraclinical/" element={<ExaminationTypesPage />} />
-                <Route path="/tutorial/" element={<PlaceholderPage title="Hướng dẫn sử dụng" />} />
                 <Route path="/account/settings" element={<PlaceholderPage title="Cài đặt tài khoản" />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

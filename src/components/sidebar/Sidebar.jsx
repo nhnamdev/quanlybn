@@ -73,11 +73,7 @@ const accordionItems = [{
     }
 ];
 
-const footerLinks = [
-    { href: "https://me.momo.vn/qr/huynh-nguyen-thuan-6rGc98C64y", title: "Ủng hộ chúng tôi", icon: "fas fa-donate", external: true },
-    { href: "/tutorial/", title: "Hướng dẫn sử dụng", icon: "fas fa-info-circle" },
-    { href: "#", title: "Về chúng tôi", icon: "fas fa-users" }
-];
+const footerLinks = [];
 
 function Sidebar({ collapsed, mobileOpen, onToggle, onCloseMobile }) {
     const { pathname } = useLocation();

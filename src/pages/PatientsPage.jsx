@@ -339,8 +339,8 @@ function PatientsPage() {
                     {error && <div className="alert alert-danger">Lỗi: {error}</div>}
 
                     <div id="patient_table_wrapper" className="dataTables_wrapper dt-bootstrap4 no-footer">
-                        <div className="row align-items-center">
-                            <div className="col-sm-8 d-none d-lg-block">
+                        <div className="row align-items-center g-2">
+                            <div className="col-12 col-lg-8">
                                 <div className="dt-buttons btn-group flex-wrap">
                                     <button
                                         className="btn btn-secondary btn-light btn-sm"
@@ -379,7 +379,7 @@ function PatientsPage() {
                                     </button>
                                 </div>
                             </div>
-                            <div className="col-sm-4">
+                            <div className="col-12 col-lg-4">
                                 <div id="patient_table_filter" className="dataTables_filter">
                                     <label>
                                         Tìm kiếm:
@@ -398,6 +398,7 @@ function PatientsPage() {
 
                         <div className="row">
                             <div className="col-sm-12">
+                                <div className="table-responsive">
                                 <table
                                     id="patient_table"
                                     className="table align-middle table-striped table-row-dashed fs-5 g-1 align-middle dataTable no-footer dtr-inline"
@@ -467,6 +468,7 @@ function PatientsPage() {
                                         )}
                                     </tbody>
                                 </table>
+                                </div>
                                 <div
                                     id="patient_table_processing"
                                     className="dataTables_processing"

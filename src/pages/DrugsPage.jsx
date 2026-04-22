@@ -192,11 +192,11 @@ function DrugsPage() {
                         <span className="text-muted mt-1 fw-bold fs-7">Danh sách thuốc trong phòng khám</span>
                     </h2>
                 </div>
-                <div className="card-toolbar">
-                    <button type="button" className="btn btn-sm btn-light btn-active-success me-2" onClick={() => setShowImportModal(true)}>
+                <div className="card-toolbar d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
+                    <button type="button" className="btn btn-sm btn-light btn-active-success" onClick={() => setShowImportModal(true)}>
                         Nhập thuốc từ Excel
                     </button>
-                    <button type="button" className="btn btn-sm btn-light btn-active-info me-2" onClick={handleExcel}>
+                    <button type="button" className="btn btn-sm btn-light btn-active-info" onClick={handleExcel}>
                         Xuất danh sách thuốc
                     </button>
                     <button type="button" className="btn btn-sm btn-light btn-active-primary" onClick={() => setShowCreateModal(true)}>
@@ -209,15 +209,15 @@ function DrugsPage() {
                 {loading && <div className="alert alert-info">Đang tải dữ liệu...</div>}
                 {error && <div className="alert alert-danger">Lỗi: {error}</div>}
 
-                <div className="row align-items-center mb-4">
-                    <div className="col-sm-8 d-none d-lg-block">
+                <div className="row align-items-center mb-4 g-2">
+                    <div className="col-12 col-lg-8">
                         <div className="dt-buttons btn-group flex-wrap">
                             <button className="btn btn-secondary btn-light-primary btn-sm" type="button" onClick={handleCopy}>Sao chép</button>
                             <button className="btn btn-secondary btn-light-success btn-sm" type="button" onClick={handleExcel}>Excel</button>
                             <button className="btn btn-secondary btn-light-info btn-sm" type="button" onClick={handlePrint}>In báo cáo</button>
                         </div>
                     </div>
-                    <div className="col-sm-4">
+                    <div className="col-12 col-lg-4">
                         <label className="w-100">
                             Tìm kiếm:
                             <input

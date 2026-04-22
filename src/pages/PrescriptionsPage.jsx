@@ -377,15 +377,15 @@ th { background: #f3f4f6; text-align: left; }
                     {error && <div className="alert alert-danger">Lỗi: {error}</div>}
 
                     <div id="rx_table_wrapper" className="dataTables_wrapper dt-bootstrap4 no-footer">
-                        <div className="row align-items-center">
-                            <div className="col-sm-8 d-none d-lg-block">
+                        <div className="row align-items-center g-2">
+                            <div className="col-12 col-lg-8">
                                 <div className="dt-buttons btn-group flex-wrap">
                                     <button className="btn btn-secondary btn-light btn-sm" type="button" onClick={() => setSearchQuery("")}>
                                         <span><i className="fas fa-search me-1"></i> Tim kiem nang cao</span>
                                     </button>
                                 </div>
                             </div>
-                            <div className="col-sm-4">
+                            <div className="col-12 col-lg-4">
                                 <div id="rx_table_filter" className="dataTables_filter">
                                     <label>
                                         Tim kiem:
@@ -404,6 +404,7 @@ th { background: #f3f4f6; text-align: left; }
 
                         <div className="row">
                             <div className="col-sm-12">
+                                <div className="table-responsive">
                                 <table id="rx_table" className="table align-middle table-striped table-row-dashed fs-5 g-1 align-middle dataTable no-footer dtr-inline" aria-describedby="rx_table_info">
                                     <thead>
                                         <tr className="text-start text-gray-900 fw-bolder fs-7 text-uppercase gs-0">
@@ -492,6 +493,7 @@ th { background: #f3f4f6; text-align: left; }
                                         )}
                                     </tbody>
                                 </table>
+                                </div>
                                 <div id="rx_table_processing" className="dataTables_processing" style={{ display: "none" }}>
                                     Đang xử lý...
                                 </div>
@@ -618,7 +620,7 @@ th { background: #f3f4f6; text-align: left; }
             {showDrugPickerModal && (
                 <>
                     <div className="modal fade show d-block" id="modal-drug-picker" tabIndex="-1" aria-hidden="true">
-                        <div className="modal-dialog modal-dialog-centered modal-xl" style={{ maxWidth: "1200px" }}>
+                        <div className="modal-dialog modal-dialog-centered modal-xl" style={{ maxWidth: "min(1200px, 95vw)" }}>
                             <div className="modal-content">
                                 <div className="modal-header">
                                     <h5 className="modal-title">

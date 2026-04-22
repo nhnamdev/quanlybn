@@ -232,8 +232,8 @@ function ReportsPage() {
                 {error && <div className="alert alert-danger">Lỗi: {error}</div>}
 
                 <div id="report_table_wrapper" className="dataTables_wrapper dt-bootstrap4 no-footer">
-                    <div className="row align-items-center">
-                        <div className="col-sm-6 d-none d-lg-block">
+                    <div className="row align-items-center g-2">
+                        <div className="col-12 col-lg-6">
                             <div className="dt-buttons btn-group flex-wrap">
                                 <button className="btn btn-secondary btn-light btn-sm" type="button" onClick={() => setSearchQuery("")}>
                                     <span>
@@ -263,7 +263,7 @@ function ReportsPage() {
                             </div>
                         </div>
 
-                        <div className="col-sm-2">
+                        <div className="col-12 col-md-4 col-lg-2">
                             <div className="daterange-container d-flex justify-content-start">
                                 <div className="d-flex align-items-center w-100">
                                     <input
@@ -277,7 +277,7 @@ function ReportsPage() {
                             </div>
                         </div>
 
-                        <div className="col-sm-4">
+                        <div className="col-12 col-md-8 col-lg-4">
                             <div id="report_table_filter" className="dataTables_filter">
                                 <label>
                                     Tim kiem:
@@ -296,6 +296,7 @@ function ReportsPage() {
 
                     <div className="row">
                         <div className="col-sm-12">
+                            <div className="table-responsive">
                             <table
                                 id="report_table"
                                 className="table align-middle table-striped table-row-dashed fs-5 g-1 align-middle dataTable no-footer dtr-inline"
@@ -358,6 +359,7 @@ function ReportsPage() {
                                     )}
                                 </tbody>
                             </table>
+                            </div>
 
                             <div id="report_table_processing" className="dataTables_processing" style={{ display: "none" }}>
                                 Đang xử lý...

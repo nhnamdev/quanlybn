@@ -10,9 +10,6 @@ function AppFooter() {
 
                 <ul className="app-footer-links order-1 order-md-2">
                     <li>
-                        <a href="#">Về chúng tôi</a>
-                    </li>
-                    <li>
                         <a href="#">Điều khoản</a>
                     </li>
                     <li>

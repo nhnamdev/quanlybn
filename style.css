@@ -813,6 +813,69 @@ small,
     }
 }
 
+@media (max-width: 991.98px) {
+    .card-header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .card-header .card-title,
+    .card-header .card-toolbar {
+        width: 100%;
+    }
+
+    .card-header .card-toolbar .d-flex,
+    .card-toolbar {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: flex-start !important;
+    }
+
+    .dataTables_wrapper .dt-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        gap: 0.5rem;
+    }
+
+    .dataTables_wrapper .dt-buttons .btn {
+        margin: 0 !important;
+    }
+
+    .dataTables_wrapper .dataTables_filter {
+        width: 100%;
+    }
+
+    .dataTables_wrapper .dataTables_filter label {
+        width: 100%;
+        display: block;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        width: 100%;
+        margin-top: 0.35rem;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table.dataTable th,
+    .table.dataTable td {
+        white-space: nowrap;
+    }
+
+    .modal-dialog.modal-xl,
+    .modal-dialog.modal-lg {
+        max-width: 95vw;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
 .badge-success {
     background: #10b981;
     color: #fff;
