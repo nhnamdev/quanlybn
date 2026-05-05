@@ -12,10 +12,12 @@ function PrescriptionsPage() {
     const [drugSearchQuery, setDrugSearchQuery] = useState("");
     const [selectedDrugItems, setSelectedDrugItems] = useState([]);
     const [selectedDiagnosis, setSelectedDiagnosis] = useState("");
+    const [selectedNextAppointmentDate, setSelectedNextAppointmentDate] = useState("");
 
     const [createForm, setCreateForm] = useState({
         patientId: "",
         prescriptionDate: new Date().toISOString().slice(0, 10),
+        nextAppointmentDate: "",
         diagnosis: "",
         notes: ""
     });
@@ -155,6 +157,10 @@ function PrescriptionsPage() {
         setSelectedPrescription(prescription);
         setDrugSearchQuery("");
         setSelectedDiagnosis(prescription?.diagnosis || "");
+        
+        const notes = prescription?.notes || "";
+        const match = notes.match(/--- Hẹn khám lại: (.*?) ---/);
+        setSelectedNextAppointmentDate(match ? match[1] : "");
         try {
             const existingItems = await getPrescriptionItems(prescription.id);
             const mapped = (existingItems || []).map((item) => ({
@@ -178,9 +184,15 @@ function PrescriptionsPage() {
     const savePrescriptionItems = async() => {
         if (!selectedPrescription) return;
         try {
+            let newNotes = selectedPrescription.notes || "";
+            newNotes = newNotes.replace(/\n*--- Hẹn khám lại: .*? ---/g, "").trim();
+            if (selectedNextAppointmentDate) {
+                newNotes += (newNotes ? "\n\n" : "") + `--- Hẹn khám lại: ${selectedNextAppointmentDate} ---`;
+            }
+
             await updatePrescription(selectedPrescription.id, {
                 diagnosis: selectedDiagnosis,
-                notes: selectedPrescription.notes || null,
+                notes: newNotes,
                 doctor_name: null
             });
             await replacePrescriptionItems(selectedPrescription.id, selectedDrugItems);
@@ -222,9 +234,13 @@ function PrescriptionsPage() {
                 const selectedPatient = patients.find((p) => p.id === createForm.patientId);
                 const patientClinicalNotes = String(selectedPatient?.notes || "").trim();
                 const manualNotes = String(createForm.notes || "").trim();
-                const finalPrescriptionNotes = manualNotes ?
+                const appointmentText = createForm.nextAppointmentDate ? `\n\n--- Hẹn khám lại: ${createForm.nextAppointmentDate} ---` : "";
+                
+                let finalPrescriptionNotes = manualNotes ?
                     `${manualNotes}${patientClinicalNotes ? `\n\n--- Ghi chu lam sang benh nhan ---\n${patientClinicalNotes}` : ""}`
                 : patientClinicalNotes;
+                
+                finalPrescriptionNotes += appointmentText;
 
             const created = await createPrescription(
                 {
@@ -255,6 +271,7 @@ function PrescriptionsPage() {
             setCreateForm({
                 patientId: "",
                 prescriptionDate: new Date().toISOString().slice(0, 10),
+                nextAppointmentDate: "",
                 diagnosis: "",
                 notes: ""
             });
@@ -344,6 +361,68 @@ th { background: #f3f4f6; text-align: left; }
             printWindow.print();
         } catch (err) {
             window.alert(`Lỗi in đơn thuốc: ${err.message}`);
+        }
+    };
+
+    const printAppointmentSlip = (prescription) => {
+        try {
+            const notes = prescription.notes || "";
+            const match = notes.match(/--- Hẹn khám lại: (.*?) ---/);
+            const nextDate = match ? match[1] : null;
+
+            if (!nextDate) {
+                window.alert("Đơn này chưa có ngày hẹn khám lại.");
+                return;
+            }
+
+            let displayDate = nextDate;
+            if (nextDate.includes("-")) {
+                const parts = nextDate.split("-");
+                if (parts.length === 3) displayDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+
+            const html = `<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<title>In phiếu hẹn khám</title>
+<style>
+body { font-family: Arial, sans-serif; padding: 32px; color: #111827; text-align: center; }
+.card { border: 2px dashed #d1d5db; padding: 24px; border-radius: 12px; max-width: 500px; margin: 0 auto; }
+h2 { margin: 0 0 16px 0; color: #2563eb; }
+.info { text-align: left; margin-bottom: 24px; font-size: 16px; line-height: 1.6; }
+.date-box { font-size: 20px; font-weight: bold; background: #f3f4f6; padding: 16px; border-radius: 8px; margin-top: 16px; }
+.footer { margin-top: 24px; font-size: 14px; color: #6b7280; font-style: italic; }
+</style>
+</head>
+<body>
+    <div class="card">
+        <h2>PHIẾU HẸN KHÁM LẠI</h2>
+        <div class="info">
+            <div><strong>Họ và tên:</strong> ${prescription.patients?.name || ""}</div>
+            <div><strong>Năm sinh:</strong> ${prescription.patients?.dob || ""}</div>
+            <div><strong>SĐT:</strong> ${prescription.patients?.phone_number || ""}</div>
+        </div>
+        <div class="date-box">
+            Ngày hẹn khám: <span style="color: #dc2626;">${displayDate}</span>
+        </div>
+        <div class="footer">
+            Vui lòng mang theo phiếu này và sổ khám bệnh khi đến khám lại.<br/>
+            Xin cảm ơn!
+        </div>
+    </div>
+</body>
+</html>`;
+
+            const printWindow = window.open("", "_blank", "width=800,height=600");
+            if (!printWindow) return;
+            printWindow.document.open();
+            printWindow.document.write(html);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        } catch (err) {
+            window.alert(`Lỗi in phiếu hẹn: ${err.message}`);
         }
     };
 
@@ -486,6 +565,13 @@ th { background: #f3f4f6; text-align: left; }
                                                             >
                                                                 In đơn
                                                             </button>
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-sm btn-info"
+                                                                onClick={() => printAppointmentSlip(rx)}
+                                                            >
+                                                                In hẹn
+                                                            </button>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -590,6 +676,16 @@ th { background: #f3f4f6; text-align: left; }
                                             />
                                         </div>
                                         <div className="mb-3">
+                                            <label className="form-label">Ngày hẹn khám lại</label>
+                                            <input
+                                                type="date"
+                                                className="form-control"
+                                                name="nextAppointmentDate"
+                                                value={createForm.nextAppointmentDate}
+                                                onChange={onCreateInputChange}
+                                            />
+                                        </div>
+                                        <div className="mb-3">
                                             <label className="form-label">Ghi chú</label>
                                             <textarea
                                                 className="form-control"
@@ -633,10 +729,17 @@ th { background: #f3f4f6; text-align: left; }
                                         <label className="form-label fw-semibold">Chẩn đoán</label>
                                         <input
                                             type="text"
-                                            className="form-control"
+                                            className="form-control mb-3"
                                             value={selectedDiagnosis}
                                             onChange={(e) => setSelectedDiagnosis(e.target.value)}
                                             placeholder="Nhập chẩn đoán cho đơn thuốc"
+                                        />
+                                        <label className="form-label fw-semibold">Ngày hẹn khám lại</label>
+                                        <input
+                                            type="date"
+                                            className="form-control"
+                                            value={selectedNextAppointmentDate}
+                                            onChange={(e) => setSelectedNextAppointmentDate(e.target.value)}
                                         />
                                     </div>
 
