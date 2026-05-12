@@ -7,7 +7,7 @@ function PatientsPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [viewMoreModal, setViewMoreModal] = useState(false);
     const [viewMoreContent, setViewMoreContent] = useState({ title: "", text: "" });
-    const { patients, loading, error, searchPatients, addPatient } = usePatients();
+    const { patients, loading, error, searchPatients, addPatient, updatePatient } = usePatients();
     const {
         examinationTypes: examinationOptions,
         loading: examinationTypesLoading,
@@ -32,6 +32,7 @@ function PatientsPage() {
         notes: "",
         examination_types: []
     });
+    const [editingPatientId, setEditingPatientId] = useState(null);
 
     const baseFee = 50000;
     const totalExaminationCost = formData.examination_types.reduce((sum, type) => {
@@ -304,6 +305,62 @@ function PatientsPage() {
         }
     };
 
+    const openEditModal = (patient) => {
+        // populate formData from patient
+        let examTypes = [];
+        try {
+            examTypes = patient.examination_types
+                ? typeof patient.examination_types === 'string'
+                    ? JSON.parse(patient.examination_types)
+                    : patient.examination_types
+                : [];
+        } catch (e) {
+            examTypes = [];
+        }
+
+        setFormData({
+            name: patient.name || "",
+            gender: patient.gender || "M",
+            dob: patient.dob || "2000-01-01",
+            address: patient.address || "",
+            phone_number: patient.phone_number || "",
+            identity_number: patient.identity_number || "",
+            note_height: "",
+            note_weight: "",
+            note_blood_pressure: "",
+            note_history: "",
+            note_parity: "",
+            note_gestational_age: "",
+            note_due_date: "",
+            note_extra: "",
+            notes: patient.notes || "",
+            examination_types: examTypes
+        });
+        setEditingPatientId(patient.id);
+        setShowCreateModal(true);
+    };
+
+    const handleUpdatePatient = async(event) => {
+        event.preventDefault();
+        if (!editingPatientId) return;
+        try {
+            await updatePatient(editingPatientId, {
+                name: formData.name,
+                dob: formData.dob,
+                gender: formData.gender,
+                phone_number: formData.phone_number,
+                address: formData.address,
+                identity_number: formData.identity_number,
+                notes: buildStructuredNotes(formData),
+                examination_types: JSON.stringify(formData.examination_types)
+            });
+            setEditingPatientId(null);
+            setShowCreateModal(false);
+        } catch (err) {
+            window.alert(`Lỗi: ${err.message}`);
+        }
+    };
+
     return (
         <>
             <div className="card">
@@ -320,7 +377,7 @@ function PatientsPage() {
                                 type="button"
                                 className="btn btn-primary js-create-patient"
                                 id="createPatient"
-                                onClick={() => setShowCreateModal(true)}
+                                onClick={() => { setEditingPatientId(null); setShowCreateModal(true); }}
                             >
                                 <span className="svg-icon svg-icon-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -456,6 +513,12 @@ function PatientsPage() {
                                                         >
                                                             Chi tiết
                                                         </button>
+                                                            <button
+                                                                className="btn btn-sm btn-warning me-2"
+                                                                onClick={() => openEditModal(patient)}
+                                                            >
+                                                                Sửa
+                                                            </button>
                                                         <button
                                                             className="btn btn-sm btn-success"
                                                             onClick={() => printPatientInvoice(patient)}
@@ -533,8 +596,8 @@ function PatientsPage() {
                             >
                                 <div className="modal-dialog modal-dialog-centered modal-lg">
                                     <div className="modal-content">
-                                        <div className="modal-header">
-                                            <h5 className="modal-title">Thêm bệnh nhân mới</h5>
+                                                <div className="modal-header">
+                                                    <h5 className="modal-title">{editingPatientId ? "Sửa bệnh nhân" : "Thêm bệnh nhân mới"}</h5>
                                             <button
                                                 type="button"
                                                 className="btn btn-icon btn-sm btn-active-light-primary ms-2"
@@ -550,7 +613,7 @@ function PatientsPage() {
                                             </button>
                                         </div>
                                         <div className="modal-body">
-                                            <form onSubmit={handleCreatePatient}>
+                                            <form onSubmit={editingPatientId ? handleUpdatePatient : handleCreatePatient}>
                                                 <div className="mb-3">
                                                     <label className="form-label">Họ và Tên</label>
                                                     <input
@@ -751,7 +814,7 @@ function PatientsPage() {
                                                     >
                                                         Đóng
                                                     </button>
-                                                    <button type="submit" className="btn btn-primary">Lưu</button>
+                                                    <button type="submit" className="btn btn-primary">{editingPatientId ? "Cập nhật" : "Lưu"}</button>
                                                 </div>
                                             </form>
                                         </div>

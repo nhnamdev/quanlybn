@@ -9,6 +9,7 @@ function ReportsPage() {
     const { examinationTypes } = useExaminationTypes();
 
     const [searchQuery, setSearchQuery] = useState("");
+    const [cccdQuery, setCccdQuery] = useState("");
     const [monthFilter, setMonthFilter] = useState("");
     const [modalShow, setModalShow] = useState(false);
     const [modalContent, setModalContent] = useState({ title: "", text: "" });
@@ -76,10 +77,14 @@ function ReportsPage() {
 
     const reportRows = useMemo(() => {
         const q = searchQuery.trim().toLowerCase();
+        const cccdQ = cccdQuery.trim().toLowerCase();
 
         return prescriptions.filter((rx) => {
             const inMonth = monthFilter ? String(rx.prescription_date || "").startsWith(monthFilter) : true;
             if (!inMonth) return false;
+
+            const cccd = rx.patients?.identity_number || "";
+            if (cccdQ && !cccd.toLowerCase().includes(cccdQ)) return false;
 
             if (!q) return true;
 
@@ -87,6 +92,7 @@ function ReportsPage() {
                 rx.prescription_date || "",
                 rx.patients?.name || "",
                 getBirthYear(rx.patients?.dob) || "",
+                rx.patients?.identity_number || "",
                 rx.diagnosis || "",
                 getMedicineList(rx) || "",
                 getNextAppointment(rx) || "",
@@ -97,14 +103,15 @@ function ReportsPage() {
 
             return text.includes(q);
         });
-    }, [prescriptions, searchQuery, monthFilter]);
+    }, [prescriptions, searchQuery, cccdQuery, monthFilter]);
 
     const getExportRows = (rows) => {
-        const headers = ["Ngày", "Họ và Tên", "Năm sinh", "Chẩn đoán", "Thuốc", "Lịch hẹn", "Tổng tiền"];
+        const headers = ["Ngày", "Họ và Tên", "Năm sinh", "CCCD", "Chẩn đoán", "Thuốc", "Lịch hẹn", "Tổng tiền"];
         const body = rows.map((row) => [
             row.prescription_date || "",
             row.patients?.name || "",
             getBirthYear(row.patients?.dob) || "",
+            row.patients?.identity_number || "",
             row.diagnosis || "",
             getMedicineList(row) || "",
             getNextAppointment(row),
@@ -134,7 +141,7 @@ function ReportsPage() {
 
     const handleExcel = () => {
         if (!ensureRows()) return;
-        const headers = ["Ngày", "Họ và Tên", "Năm sinh", "Chẩn đoán", "Thuốc", "Lịch hẹn", "Tổng tiền"];
+        const headers = ["Ngày", "Họ và Tên", "Năm sinh", "CCCD", "Chẩn đoán", "Thuốc", "Lịch hẹn", "Tổng tiền"];
         const body = reportRows.map((row) => {
             const parsedDate = row.prescription_date ? new Date(row.prescription_date) : null;
             const dateCell = parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate : row.prescription_date || "";
@@ -142,6 +149,7 @@ function ReportsPage() {
                 dateCell,
                 row.patients?.name || "",
                 getBirthYear(row.patients?.dob) || "",
+                row.patients?.identity_number || "",
                 row.diagnosis || "",
                 getMedicineList(row) || "",
                 getNextAppointment(row) === "-" ? "" : getNextAppointment(row),
@@ -154,6 +162,7 @@ function ReportsPage() {
             { wch: 13 },
             { wch: 24 },
             { wch: 10 },
+            { wch: 15 },
             { wch: 26 },
             { wch: 40 },
             { wch: 13 },
@@ -182,11 +191,11 @@ function ReportsPage() {
         const tableRows = reportRows
             .map(
                 (row) =>
-                    `<tr><td>${row.prescription_date || ""}</td><td>${row.patients?.name || ""}</td><td>${getBirthYear(row.patients?.dob) || ""}</td><td>${row.diagnosis || ""}</td><td>${getMedicineList(row) || ""}</td><td>${getNextAppointment(row)}</td><td>${Number(getVisitTotal(row) || 0).toLocaleString("vi-VN")} đ</td></tr>`
+                    `<tr><td>${row.prescription_date || ""}</td><td>${row.patients?.name || ""}</td><td>${getBirthYear(row.patients?.dob) || ""}</td><td>${row.patients?.identity_number || ""}</td><td>${row.diagnosis || ""}</td><td>${getMedicineList(row) || ""}</td><td>${getNextAppointment(row)}</td><td>${Number(getVisitTotal(row) || 0).toLocaleString("vi-VN")} đ</td></tr>`
             )
             .join("");
 
-        const html = `<!doctype html><html lang="vi"><head><meta charset="UTF-8"/><title>${title}</title><style>body{font-family:Arial,sans-serif;padding:24px;}h2{margin-bottom:16px;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #d1d5db;padding:8px;font-size:13px;}th{background:#f3f4f6;text-align:left;}</style></head><body><h2>${title}</h2><table><thead><tr><th>Ngày</th><th>Họ và Tên</th><th>Năm sinh</th><th>Chẩn đoán</th><th>Thuốc</th><th>Lịch hẹn</th><th>Tổng tiền</th></tr></thead><tbody>${tableRows}</tbody></table></body></html>`;
+        const html = `<!doctype html><html lang="vi"><head><meta charset="UTF-8"/><title>${title}</title><style>body{font-family:Arial,sans-serif;padding:24px;}h2{margin-bottom:16px;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #d1d5db;padding:8px;font-size:13px;}th{background:#f3f4f6;text-align:left;}</style></head><body><h2>${title}</h2><table><thead><tr><th>Ngày</th><th>Họ và Tên</th><th>Năm sinh</th><th>CCCD</th><th>Chẩn đoán</th><th>Thuốc</th><th>Lịch hẹn</th><th>Tổng tiền</th></tr></thead><tbody>${tableRows}</tbody></table></body></html>`;
 
         const printWindow = window.open("", "_blank", "width=1100,height=760");
         if (!printWindow) return;
@@ -243,11 +252,11 @@ function ReportsPage() {
 
                 <div id="report_table_wrapper" className="dataTables_wrapper dt-bootstrap4 no-footer">
                     <div className="row align-items-center g-2">
-                        <div className="col-12 col-lg-6">
+                        <div className="col-12 col-lg-5">
                             <div className="dt-buttons btn-group flex-wrap">
-                                <button className="btn btn-secondary btn-light btn-sm" type="button" onClick={() => setSearchQuery("")}>
+                                <button className="btn btn-secondary btn-light btn-sm" type="button" onClick={() => { setSearchQuery(""); setCccdQuery(""); setMonthFilter(""); }}>
                                     <span>
-                                        <i className="fas fa-search me-1"></i> Tim kiem nang cao
+                                        <i className="fas fa-sync-alt me-1"></i> Đặt lại
                                     </span>
                                 </button>
                                 <button className="btn btn-secondary buttons-copy buttons-html5 btn-light-primary btn-sm" type="button" onClick={handleCopy}>
@@ -287,10 +296,25 @@ function ReportsPage() {
                             </div>
                         </div>
 
-                        <div className="col-12 col-md-8 col-lg-4">
+                        <div className="col-12 col-md-4 col-lg-2">
+                            <div className="dataTables_filter text-md-end">
+                                <label>
+                                    CCCD:
+                                    <input
+                                        type="search"
+                                        className="form-control form-control-sm form-control-solid"
+                                        placeholder="Nhập CCCD..."
+                                        value={cccdQuery}
+                                        onChange={(e) => setCccdQuery(e.target.value)}
+                                    />
+                                </label>
+                            </div>
+                        </div>
+
+                        <div className="col-12 col-md-4 col-lg-3">
                             <div id="report_table_filter" className="dataTables_filter">
                                 <label>
-                                    Tim kiem:
+                                    Tim kiem chung:
                                     <input
                                         type="search"
                                         className="form-control form-control-sm form-control-solid"
@@ -317,6 +341,7 @@ function ReportsPage() {
                                         <th style={{ width: "90px" }}>Ngày</th>
                                         <th style={{ width: "150px" }}>Họ &amp; Tên</th>
                                         <th style={{ width: "80px" }}>Năm sinh</th>
+                                        <th style={{ width: "110px" }}>CCCD</th>
                                         <th style={{ width: "150px" }}>Chẩn đoán</th>
                                         <th style={{ width: "200px" }}>Thuốc</th>
                                         <th style={{ width: "110px" }}>Lịch hẹn</th>
@@ -326,7 +351,7 @@ function ReportsPage() {
                                 <tbody>
                                     {reportRows.length === 0 ? (
                                         <tr className="odd">
-                                            <td valign="top" colSpan="6" className="dataTables_empty">
+                                            <td valign="top" colSpan="7" className="dataTables_empty">
                                                 Không có dữ liệu
                                             </td>
                                         </tr>
@@ -336,6 +361,7 @@ function ReportsPage() {
                                                 <td>{row.prescription_date || "-"}</td>
                                                 <td>{row.patients?.name || "-"}</td>
                                                 <td>{getBirthYear(row.patients?.dob) || "-"}</td>
+                                                <td>{row.patients?.identity_number || "-"}</td>
                                                 <td>
                                                     <div className="d-flex align-items-center gap-2">
                                                         <span>{truncateText(row.diagnosis, 40)}</span>
