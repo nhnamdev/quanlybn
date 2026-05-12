@@ -502,29 +502,34 @@ function PatientsPage() {
                                                     </td>
                                                     <td>{patient.identity_number || "-"}</td>
                                                     <td className="text-end">
-                                                        <button
-                                                            className="btn btn-sm btn-info me-2"
-                                                            onClick={() =>
-                                                                showViewMoreModal(
-                                                                    "Chi tiết bệnh nhân",
-                                                                    `Mã BN: ${patient.id}\nTên: ${patient.name}\nGiới tính: ${genderLabel(patient.gender)}\nNgày sinh: ${patient.dob}\nĐiện thoại: ${patient.phone_number || "-"}\nĐịa chỉ: ${patient.address || "-"}\nCCCD: ${patient.identity_number || "-"}\nGhi chú: ${patient.notes || "-"}`
-                                                                )
-                                                            }
-                                                        >
-                                                            Chi tiết
-                                                        </button>
+                                                        <div className="d-flex flex-nowrap justify-content-end gap-1">
                                                             <button
-                                                                className="btn btn-sm btn-warning me-2"
+                                                                className="btn btn-sm btn-info"
+                                                                style={{ whiteSpace: "nowrap" }}
+                                                                onClick={() =>
+                                                                    showViewMoreModal(
+                                                                        "Chi tiết bệnh nhân",
+                                                                        `Mã BN: ${patient.id}\nTên: ${patient.name}\nGiới tính: ${genderLabel(patient.gender)}\nNgày sinh: ${patient.dob}\nĐiện thoại: ${patient.phone_number || "-"}\nĐịa chỉ: ${patient.address || "-"}\nCCCD: ${patient.identity_number || "-"}\nGhi chú: ${patient.notes || "-"}`
+                                                                    )
+                                                                }
+                                                            >
+                                                                Chi tiết
+                                                            </button>
+                                                            <button
+                                                                className="btn btn-sm btn-warning"
+                                                                style={{ whiteSpace: "nowrap" }}
                                                                 onClick={() => openEditModal(patient)}
                                                             >
                                                                 Sửa
                                                             </button>
-                                                        <button
-                                                            className="btn btn-sm btn-success"
-                                                            onClick={() => printPatientInvoice(patient)}
-                                                        >
-                                                            In đơn
-                                                        </button>
+                                                            <button
+                                                                className="btn btn-sm btn-success"
+                                                                style={{ whiteSpace: "nowrap" }}
+                                                                onClick={() => printPatientInvoice(patient)}
+                                                            >
+                                                                In đơn
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             ))
