@@ -7,12 +7,19 @@ function PatientsPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [viewMoreModal, setViewMoreModal] = useState(false);
     const [viewMoreContent, setViewMoreContent] = useState({ title: "", text: "" });
+    const [examSearchQuery, setExamSearchQuery] = useState("");
     const { patients, loading, error, searchPatients, addPatient, updatePatient } = usePatients();
     const {
         examinationTypes: examinationOptions,
         loading: examinationTypesLoading,
         error: examinationTypesError
     } = useExaminationTypes();
+
+    const filteredExaminationOptions = useMemo(() => {
+        const q = examSearchQuery.trim().toLowerCase();
+        if (!q) return examinationOptions;
+        return examinationOptions.filter((o) => (o.label || "").toLowerCase().includes(q));
+    }, [examinationOptions, examSearchQuery]);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -338,6 +345,7 @@ function PatientsPage() {
         });
         setEditingPatientId(patient.id);
         setShowCreateModal(true);
+        setExamSearchQuery("");
     };
 
     const handleUpdatePatient = async(event) => {
@@ -377,7 +385,7 @@ function PatientsPage() {
                                 type="button"
                                 className="btn btn-primary js-create-patient"
                                 id="createPatient"
-                                onClick={() => { setEditingPatientId(null); setShowCreateModal(true); }}
+                                onClick={() => { setEditingPatientId(null); setShowCreateModal(true); setExamSearchQuery(""); }}
                             >
                                 <span className="svg-icon svg-icon-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -778,10 +786,17 @@ function PatientsPage() {
 
                                                 <div className="mb-3">
                                                     <label className="form-label">Chọn hình thức khám</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control mb-2"
+                                                        placeholder="Tìm kiếm hình thức khám..."
+                                                        value={examSearchQuery}
+                                                        onChange={(e) => setExamSearchQuery(e.target.value)}
+                                                    />
                                                     <div style={{ border: "1px solid #ccc", borderRadius: "4px", padding: "8px", maxHeight: "150px", overflowY: "auto" }}>
                                                         {examinationTypesLoading && <div className="text-muted">Đang tải danh sách...</div>}
                                                         {examinationTypesError && <div className="text-danger">Lỗi tải danh sách hình thức khám.</div>}
-                                                        {examinationOptions.map((option) => (
+                                                        {filteredExaminationOptions.map((option) => (
                                                             <div key={option.id} className="form-check">
                                                                 <input
                                                                     className="form-check-input"
@@ -797,6 +812,9 @@ function PatientsPage() {
                                                         ))}
                                                         {!examinationTypesLoading && examinationOptions.length === 0 && (
                                                             <div className="text-muted">Chưa có hình thức khám nào.</div>
+                                                        )}
+                                                        {!examinationTypesLoading && examinationOptions.length > 0 && filteredExaminationOptions.length === 0 && (
+                                                            <div className="text-muted">Không tìm thấy hình thức khám nào.</div>
                                                         )}
                                                     </div>
                                                 </div>
