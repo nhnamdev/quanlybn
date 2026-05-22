@@ -23,13 +23,14 @@ function PlaceholderPage({ title }) {
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(
-        () => sessionStorage.getItem("auth") === "1"
+        () => sessionStorage.getItem("auth") === "1" || localStorage.getItem("auth") === "1"
     );
 
     const handleLogin = () => setIsLoggedIn(true);
 
     const handleLogout = () => {
         sessionStorage.removeItem("auth");
+        localStorage.removeItem("auth");
         setIsLoggedIn(false);
     };
 
