@@ -7,3 +7,5 @@ export { useDrugs }
 from './useDrugs';
 export { useExaminationTypes }
 from './useExaminationTypes';
+export { useDoctorWorkSchedules }
+from './useDoctorWorkSchedules';

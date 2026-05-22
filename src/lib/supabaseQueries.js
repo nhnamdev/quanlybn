@@ -158,6 +158,39 @@ export const examinationTypesQueries = {
     }
 };
 
+// ============= DOCTOR WORK SCHEDULES =============
+export const doctorWorkSchedulesQueries = {
+    getAll: async(includeInactive = false) => {
+        let query = supabase
+            .from('doctor_work_schedules')
+            .select('*')
+            .order('sort_order', { ascending: true });
+
+        if (!includeInactive) {
+            query = query.eq('is_active', true);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+        return data || [];
+    },
+
+    update: async(dayKey, payload) => {
+        const { data, error } = await supabase
+            .from('doctor_work_schedules')
+            .update({
+                day_label: payload.day_label,
+                schedule_text: payload.schedule_text,
+                updated_at: new Date().toISOString()
+            })
+            .eq('day_key', dayKey)
+            .select()
+            .single();
+        if (error) throw error;
+        return data;
+    }
+};
+
 // ============= PRESCRIPTIONS =============
 export const prescriptionsQueries = {
     // Get all prescriptions with patient info

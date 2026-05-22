@@ -5,9 +5,22 @@ function Header({ onToggleSidebar, onLogout }) {
     const { pathname } = useLocation();
     const [showUserMenu, setShowUserMenu] = useState(false);
 
-    const isPatientsPage = pathname === "/patient/" || pathname === "/patients";
-    const isRxPage = pathname === "/rx/" || pathname === "/prescriptions";
-    const pageTitle = isPatientsPage ? "Danh sách Bệnh Nhân" : isRxPage ? "Đơn thuốc" : "Bảng điều khiển";
+    const normalizedPath = pathname.replace(/\/$/, "") || "/";
+    const isPatientsPage = normalizedPath === "/patient" || normalizedPath === "/patients";
+    const isRxPage = normalizedPath === "/rx" || normalizedPath === "/prescriptions";
+    const pageTitleMap = {
+        "/": "Bảng điều khiển",
+        "/patient": "Danh sách Bệnh Nhân",
+        "/patients": "Danh sách Bệnh Nhân",
+        "/rx": "Đơn thuốc",
+        "/prescriptions": "Đơn thuốc",
+        "/drugs": "Tủ thuốc",
+        "/report": "Báo cáo khám bệnh",
+        "/reports": "Báo cáo khám bệnh",
+        "/working-schedule": "Lịch làm việc",
+        "/paraclinical": "Các hình thức khám"
+    };
+    const pageTitle = pageTitleMap[normalizedPath] || "Bảng điều khiển";
 
     const handleLogout = () => {
         if (window.confirm("Bạn có chắc chắn muốn đăng xuất?")) {
