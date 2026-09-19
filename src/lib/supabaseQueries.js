@@ -23,12 +23,12 @@ export const patientsQueries = {
         return data;
     },
 
-    // Search patients by name or phone
+    // Search patients by name, phone or identity_number (CCCD)
     search: async(query) => {
         const { data, error } = await supabase
             .from('patients')
             .select('*')
-            .or(`name.ilike.%${query}%,phone_number.ilike.%${query}%`)
+            .or(`name.ilike.%${query}%,phone_number.ilike.%${query}%,identity_number.ilike.%${query}%`)
             .order('createdAt', { ascending: false });
         if (error) throw error;
         return data || [];
@@ -166,7 +166,7 @@ export const prescriptionsQueries = {
             .from('prescriptions')
             .select(`
                 *,
-                patients:patient_id(name, dob, gender, phone_number, examination_types),
+                patients:patient_id(*),
                 prescription_items(medicine_name, quantity, unit_price, line_total)
             `)
             .order('prescription_date', { ascending: false });
@@ -203,17 +203,38 @@ export const prescriptionsQueries = {
         return data;
     },
 
+    // Generate next prescription ID
+    generateNextId: async() => {
+        const { data, error } = await supabase
+            .from('prescriptions')
+            .select('id');
+        if (error) throw error;
+        const maxNum = (data || [])
+            .map((rx) => {
+                const match = String(rx.id || "").match(/(\d+)/);
+                return match ? Number(match[1]) : 0;
+            })
+            .filter((n) => Number.isFinite(n));
+        const next = maxNum.length > 0 ? Math.max(...maxNum) + 1 : 1;
+        return `RX${String(next).padStart(4, "0")}`;
+    },
+
     // Create prescription
     create: async(prescriptionData, items = []) => {
+        let presId = prescriptionData.id;
+        if (!presId) {
+            presId = await prescriptionsQueries.generateNextId();
+        }
+
         // Create prescription
         const { data: prescription, error: prescError } = await supabase
             .from('prescriptions')
             .insert([{
-                id: prescriptionData.id,
+                id: presId,
                 patient_id: prescriptionData.patient_id,
                 prescription_date: prescriptionData.prescription_date || new Date().toISOString().split('T')[0],
-                diagnosis: prescriptionData.diagnosis,
-                doctor_name: prescriptionData.doctor_name,
+                diagnosis: prescriptionData.diagnosis || "Tiếp nhận khám bệnh",
+                doctor_name: prescriptionData.doctor_name || null,
                 notes: prescriptionData.notes || null
             }])
             .select()
