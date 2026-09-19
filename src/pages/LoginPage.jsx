@@ -4,9 +4,10 @@ const VALID_USERNAME = "tienquanlybn";
 const VALID_PASSWORD = "Tien123@";
 
 function LoginPage({ onLogin }) {
-    const [username, setUsername] = useState("");
+    const [username, setUsername] = useState(() => localStorage.getItem("savedUsername") || "");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [rememberLogin, setRememberLogin] = useState(() => localStorage.getItem("rememberLogin") !== "0");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
@@ -18,7 +19,17 @@ function LoginPage({ onLogin }) {
         await new Promise((r) => setTimeout(r, 600));
 
         if (username === VALID_USERNAME && password === VALID_PASSWORD) {
-            sessionStorage.setItem("auth", "1");
+            if (rememberLogin) {
+                localStorage.setItem("auth", "1");
+                localStorage.setItem("rememberLogin", "1");
+                localStorage.setItem("savedUsername", username);
+                sessionStorage.removeItem("auth");
+            } else {
+                sessionStorage.setItem("auth", "1");
+                localStorage.removeItem("auth");
+                localStorage.setItem("rememberLogin", "0");
+                localStorage.removeItem("savedUsername");
+            }
             onLogin();
         } else {
             setError("Tên đăng nhập hoặc mật khẩu không đúng.");
@@ -199,6 +210,24 @@ function LoginPage({ onLogin }) {
                                 </button>
                             </div>
                         </div>
+
+                        {/* Remember login */}
+                        <label style={{
+                            display: "flex", alignItems: "center", gap: "10px",
+                            color: "#cbd5e1", fontSize: "13px",
+                            margin: "-8px 0 20px 0", cursor: "pointer"
+                        }}>
+                            <input
+                                type="checkbox"
+                                checked={rememberLogin}
+                                onChange={(e) => setRememberLogin(e.target.checked)}
+                                style={{
+                                    width: "16px", height: "16px", accentColor: "#3b82f6",
+                                    cursor: "pointer"
+                                }}
+                            />
+                            <span>Ghi nhớ đăng nhập trên máy này</span>
+                        </label>
 
                         {/* Error */}
                         {error && (

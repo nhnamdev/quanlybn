@@ -7,6 +7,7 @@ import DrugsPage from "./pages/DrugsPage";
 import PrescriptionsPage from "./pages/PrescriptionsPage";
 import ReportsPage from "./pages/ReportsPage";
 import ExaminationTypesPage from "./pages/ExaminationTypesPage";
+import WorkSchedulePage from "./pages/WorkSchedulePage";
 import LoginPage from "./pages/LoginPage";
 
 function PlaceholderPage({ title }) {
@@ -22,13 +23,14 @@ function PlaceholderPage({ title }) {
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(
-        () => sessionStorage.getItem("auth") === "1"
+        () => sessionStorage.getItem("auth") === "1" || localStorage.getItem("auth") === "1"
     );
 
     const handleLogin = () => setIsLoggedIn(true);
 
     const handleLogout = () => {
         sessionStorage.removeItem("auth");
+        localStorage.removeItem("auth");
         setIsLoggedIn(false);
     };
 
@@ -49,7 +51,8 @@ function App() {
                 <Route path="/reports" element={<ReportsPage />} />
                 <Route path="/report/" element={<ReportsPage />} />
                 <Route path="/event/" element={<PlaceholderPage title="Lịch hẹn" />} />
-                <Route path="/working-schedule/" element={<PlaceholderPage title="Lịch làm việc" />} />
+                <Route path="/working-schedule" element={<WorkSchedulePage />} />
+                <Route path="/working-schedule/" element={<WorkSchedulePage />} />
                 <Route path="/laboratory/" element={<PlaceholderPage title="Hóa sinh" />} />
                 <Route path="/radiology/" element={<PlaceholderPage title="Chẩn đoán hình ảnh" />} />
                 <Route path="/eus/" element={<PlaceholderPage title="Thăm dò chức năng" />} />
