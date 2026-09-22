@@ -340,14 +340,17 @@ export const prescriptionsQueries = {
 
     // Update prescription
     update: async(id, prescriptionData) => {
+        const payload = {
+            updated_at: new Date().toISOString()
+        };
+        if (prescriptionData.diagnosis !== undefined) payload.diagnosis = prescriptionData.diagnosis;
+        if (prescriptionData.doctor_name !== undefined) payload.doctor_name = prescriptionData.doctor_name;
+        if (prescriptionData.notes !== undefined) payload.notes = prescriptionData.notes || null;
+        if (prescriptionData.prescription_date !== undefined) payload.prescription_date = prescriptionData.prescription_date;
+
         const { data, error } = await supabase
             .from('prescriptions')
-            .update({
-                diagnosis: prescriptionData.diagnosis,
-                doctor_name: prescriptionData.doctor_name,
-                notes: prescriptionData.notes || null,
-                updated_at: new Date().toISOString()
-            })
+            .update(payload)
             .eq('id', id)
             .select()
             .single();

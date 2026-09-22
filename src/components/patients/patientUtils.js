@@ -143,16 +143,20 @@ export const getResolvedVisitNotes = (record) => {
     const rxParsed = parsePatientNotes(rxNotes);
     const patientParsed = parsePatientNotes(patientNotes);
 
-    const height = rxParsed.height || patientParsed.height || "";
-    const weight = rxParsed.weight || patientParsed.weight || "";
-    const bloodPressure = rxParsed.bloodPressure || patientParsed.bloodPressure || "";
-    const history = rxParsed.history || patientParsed.history || "";
-    const parity = rxParsed.parity || patientParsed.parity || "";
-    const gestationalAge = rxParsed.gestationalAge || patientParsed.gestationalAge || "";
-    const dueDate = rxParsed.dueDate || patientParsed.dueDate || "";
-    const extraNote = rxParsed.extraNote || patientParsed.extraNote || "";
-    const legacyNote = rxParsed.legacyNote || patientParsed.legacyNote || "";
-    const services = rxParsed.services || "";
+    const isLatest = record?.isLatestVisit !== false;
+
+    // Khi người dùng cập nhật hồ sơ bệnh nhân, patientParsed chứa thông tin mới nhất.
+    // Đối với lượt khám mới nhất / hiện tại (hoặc khi bệnh nhân chỉ có 1 lượt khám), ưu tiên thông tin cập nhật từ hồ sơ bệnh nhân.
+    const height = isLatest ? (patientParsed.height || rxParsed.height || "") : (rxParsed.height || patientParsed.height || "");
+    const weight = isLatest ? (patientParsed.weight || rxParsed.weight || "") : (rxParsed.weight || patientParsed.weight || "");
+    const bloodPressure = isLatest ? (patientParsed.bloodPressure || rxParsed.bloodPressure || "") : (rxParsed.bloodPressure || patientParsed.bloodPressure || "");
+    const history = isLatest ? (patientParsed.history || rxParsed.history || "") : (rxParsed.history || patientParsed.history || "");
+    const parity = isLatest ? (patientParsed.parity || rxParsed.parity || "") : (rxParsed.parity || patientParsed.parity || "");
+    const gestationalAge = isLatest ? (patientParsed.gestationalAge || rxParsed.gestationalAge || "") : (rxParsed.gestationalAge || patientParsed.gestationalAge || "");
+    const dueDate = isLatest ? (patientParsed.dueDate || rxParsed.dueDate || "") : (rxParsed.dueDate || patientParsed.dueDate || "");
+    const extraNote = isLatest ? (patientParsed.extraNote || rxParsed.extraNote || "") : (rxParsed.extraNote || patientParsed.extraNote || "");
+    const legacyNote = isLatest ? (patientParsed.legacyNote || rxParsed.legacyNote || "") : (rxParsed.legacyNote || patientParsed.legacyNote || "");
+    const services = rxParsed.services || patientParsed.services || "";
 
     const rxDiagnosis = record?.prescription?.diagnosis;
     const diagnosis = rxDiagnosis && rxDiagnosis !== "Tiếp nhận khám bệnh" ? rxDiagnosis : "";

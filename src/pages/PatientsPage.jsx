@@ -32,7 +32,8 @@ function PatientsPage() {
         prescriptions,
         loading: prescriptionsLoading,
         error: prescriptionsError,
-        fetchPrescriptions
+        fetchPrescriptions,
+        updatePrescription
     } = usePrescriptions();
 
     const loading = patientsLoading || prescriptionsLoading;
@@ -70,6 +71,7 @@ function PatientsPage() {
 
     const [formData, setFormData] = useState(initialFormState);
     const [editingPatientId, setEditingPatientId] = useState(null);
+    const [editingPrescriptionId, setEditingPrescriptionId] = useState(null);
     const [modalMode, setModalMode] = useState("create"); // "create" | "new_visit" | "edit"
     const [detectedExistingPatient, setDetectedExistingPatient] = useState(null);
 
@@ -106,6 +108,7 @@ function PatientsPage() {
                     patient: patient,
                     prescription: null,
                     visitNumber: 1,
+                    isLatestVisit: true,
                     visitDate: patient.createdAt ? String(patient.createdAt).split("T")[0] : "",
                     notes: patient.notes || "",
                     createdAt: patient.createdAt || ""
@@ -120,14 +123,16 @@ function PatientsPage() {
                 });
 
                 sorted.forEach((rx, idx) => {
+                    const isLatest = idx === sorted.length - 1;
                     records.push({
                         recordId: `${patient.id}_${rx.id}`,
                         patientId: patient.id,
                         patient: patient,
                         prescription: rx,
                         visitNumber: idx + 1,
+                        isLatestVisit: isLatest,
                         visitDate: rx.prescription_date || "",
-                        notes: rx.notes || patient.notes || "",
+                        notes: isLatest ? (patient.notes || rx.notes || "") : (rx.notes || patient.notes || ""),
                         createdAt: rx.created_at || rx.prescription_date || ""
                     });
                 });
@@ -463,6 +468,7 @@ function PatientsPage() {
     const openCreateModal = () => {
         setModalMode("create");
         setEditingPatientId(null);
+        setEditingPrescriptionId(null);
         setDetectedExistingPatient(null);
         setFormData(initialFormState);
         setShowCreateModal(true);
@@ -472,6 +478,7 @@ function PatientsPage() {
     const openNewVisitModal = (patient) => {
         setModalMode("new_visit");
         setEditingPatientId(patient.id);
+        setEditingPrescriptionId(null);
         setDetectedExistingPatient(null);
 
         const parsed = parsePatientNotes(patient.notes || "");
@@ -499,9 +506,22 @@ function PatientsPage() {
         setExamSearchQuery("");
     };
 
-    const openEditModal = (patient) => {
+    const openEditModal = (patient, record = null) => {
         setModalMode("edit");
         setEditingPatientId(patient.id);
+        let currentPrescriptionId = record?.prescription?.id || null;
+        if (!currentPrescriptionId && patient?.id) {
+            const pRxs = (prescriptions || []).filter((r) => r.patient_id === patient.id);
+            if (pRxs.length > 0) {
+                const sortedRxs = [...pRxs].sort((a, b) => {
+                    const timeA = a.created_at || a.prescription_date || "";
+                    const timeB = b.created_at || b.prescription_date || "";
+                    return timeB.localeCompare(timeA);
+                });
+                currentPrescriptionId = sortedRxs[0]?.id || null;
+            }
+        }
+        setEditingPrescriptionId(currentPrescriptionId);
         setDetectedExistingPatient(null);
         let examTypes = [];
         try {
@@ -515,6 +535,7 @@ function PatientsPage() {
         }
 
         const parsed = parsePatientNotes(patient.notes || "");
+        const resolved = record ? getResolvedVisitNotes(record) : null;
 
         setFormData({
             name: patient.name || "",
@@ -523,15 +544,15 @@ function PatientsPage() {
             address: patient.address || "",
             phone_number: patient.phone_number || "",
             identity_number: patient.identity_number || "",
-            note_height: parsed.height,
-            note_weight: parsed.weight,
-            note_blood_pressure: parsed.bloodPressure,
-            note_history: parsed.history,
-            note_parity: parsed.parity,
-            note_gestational_age: parsed.gestationalAge,
-            note_due_date: parsed.dueDate,
-            note_extra: parsed.extraNote,
-            notes: parsed.legacyNote,
+            note_height: resolved?.height || parsed.height || "",
+            note_weight: resolved?.weight || parsed.weight || "",
+            note_blood_pressure: resolved?.bloodPressure || parsed.bloodPressure || "",
+            note_history: resolved?.history || parsed.history || "",
+            note_parity: resolved?.parity || parsed.parity || "",
+            note_gestational_age: resolved?.gestationalAge || parsed.gestationalAge || "",
+            note_due_date: resolved?.dueDate || parsed.dueDate || "",
+            note_extra: resolved?.extraNote || parsed.extraNote || "",
+            notes: resolved?.legacyNote || parsed.legacyNote || "",
             examination_types: examTypes
         });
         setShowCreateModal(true);
@@ -587,7 +608,7 @@ function PatientsPage() {
             const currentPatient = patients.find((p) => p.id === editingPatientId);
             const prevParsed = parsePatientNotes(currentPatient?.notes || "");
 
-            const mergedForm = {
+            const mergedForm = modalMode === "new_visit" ? {
                 ...formData,
                 note_height: formData.note_height?.trim() || prevParsed.height,
                 note_weight: formData.note_weight?.trim() || prevParsed.weight,
@@ -597,7 +618,11 @@ function PatientsPage() {
                 note_gestational_age: formData.note_gestational_age?.trim() || prevParsed.gestationalAge,
                 note_due_date: formData.note_due_date?.trim() || prevParsed.dueDate,
                 notes: formData.notes?.trim() || prevParsed.legacyNote
+            } : {
+                ...formData
             };
+
+            const updatedPatientNotes = buildStructuredNotes(mergedForm);
 
             await updatePatient(editingPatientId, {
                 name: formData.name,
@@ -606,7 +631,7 @@ function PatientsPage() {
                 phone_number: formData.phone_number,
                 address: formData.address,
                 identity_number: formData.identity_number,
-                notes: buildStructuredNotes(mergedForm),
+                notes: updatedPatientNotes,
                 examination_types: JSON.stringify(formData.examination_types)
             });
 
@@ -620,6 +645,76 @@ function PatientsPage() {
                     window.alert(`Đã cập nhật thông tin nhưng gặp lỗi khi tạo phiếu khám mới: ${errVisit.message}`);
                 }
             } else {
+                // Chế độ sửa hồ sơ bệnh nhân: Đồng bộ cập nhật ghi chú sang đơn khám tương ứng
+                try {
+                    let targetRxId = editingPrescriptionId;
+                    if (!targetRxId) {
+                        const patientRxs = (prescriptions || []).filter((r) => r.patient_id === editingPatientId);
+                        if (patientRxs.length > 0) {
+                            const sortedRxs = [...patientRxs].sort((a, b) => {
+                                const timeA = a.created_at || a.prescription_date || "";
+                                const timeB = b.created_at || b.prescription_date || "";
+                                return timeB.localeCompare(timeA);
+                            });
+                            targetRxId = sortedRxs[0]?.id;
+                        }
+                    }
+
+                    if (targetRxId) {
+                        const targetRx = (prescriptions || []).find((r) => r.id === targetRxId);
+                        const selectedExamLabels = (formData.examination_types || [])
+                            .map((typeId) => {
+                                const opt = examinationOptions.find((o) => o.id === typeId);
+                                return opt ? opt.label : typeId;
+                            })
+                            .filter(Boolean);
+
+                        const diagnosisText = selectedExamLabels.length > 0
+                            ? selectedExamLabels.join(", ")
+                            : "Tiếp nhận khám bệnh";
+
+                        const lines = [];
+                        const vitals = [];
+                        if (mergedForm.note_height?.trim()) vitals.push(`Chiều cao: ${mergedForm.note_height.trim()}`);
+                        if (mergedForm.note_weight?.trim()) vitals.push(`Cân nặng: ${mergedForm.note_weight.trim()}`);
+                        if (mergedForm.note_blood_pressure?.trim()) vitals.push(`Huyết áp: ${mergedForm.note_blood_pressure.trim()}`);
+                        if (vitals.length > 0) lines.push(vitals.join(" | "));
+                        if (mergedForm.note_history?.trim()) lines.push(`Tiền căn: ${mergedForm.note_history.trim()}`);
+
+                        const obstetric = [];
+                        if (mergedForm.note_parity?.trim()) obstetric.push(`Con lần thứ: ${mergedForm.note_parity.trim()}`);
+                        if (mergedForm.note_gestational_age?.trim()) obstetric.push(`Tuổi thai: ${mergedForm.note_gestational_age.trim()}`);
+                        if (mergedForm.note_due_date?.trim()) obstetric.push(`Dự sinh: ${mergedForm.note_due_date.trim()}`);
+                        if (obstetric.length > 0) lines.push(obstetric.join(" | "));
+
+                        if (mergedForm.note_extra?.trim()) lines.push(`Ghi chú thêm:\n${mergedForm.note_extra.trim()}`);
+                        if (selectedExamLabels.length > 0) lines.push(`[Dịch vụ tiếp nhận]: ${selectedExamLabels.join(", ")}`);
+
+                        let finalRxNotes = lines.join("\n");
+                        const existingRxNotes = targetRx?.notes || "";
+                        const appointmentMatch = existingRxNotes.match(/--- Hẹn khám lại: .*? ---/);
+
+                        if (existingRxNotes.includes("--- Ghi chu lam sang benh nhan ---")) {
+                            const doctorPart = existingRxNotes.split("--- Ghi chu lam sang benh nhan ---")[0].trim();
+                            finalRxNotes = `${doctorPart}\n\n--- Ghi chu lam sang benh nhan ---\n${updatedPatientNotes}`;
+                            if (appointmentMatch) {
+                                finalRxNotes += `\n\n${appointmentMatch[0]}`;
+                            }
+                        }
+
+                        const rxPayload = { notes: finalRxNotes || null };
+                        if (!targetRx?.diagnosis || targetRx.diagnosis === "Tiếp nhận khám bệnh" || targetRx.diagnosis.includes("Tiếp nhận khám bệnh")) {
+                            rxPayload.diagnosis = diagnosisText;
+                        }
+
+                        if (updatePrescription) {
+                            await updatePrescription(targetRxId, rxPayload);
+                        }
+                    }
+                } catch (errRxUpdate) {
+                    console.error("Lỗi đồng bộ ghi chú sang phiếu khám:", errRxUpdate);
+                }
+
                 window.alert(`Đã cập nhật hồ sơ bệnh nhân "${formData.name}" thành công!`);
             }
 
@@ -627,6 +722,7 @@ function PatientsPage() {
             if (fetchPatients) await fetchPatients();
 
             setEditingPatientId(null);
+            setEditingPrescriptionId(null);
             setDetectedExistingPatient(null);
             setShowCreateModal(false);
         } catch (err) {
@@ -872,7 +968,7 @@ function PatientsPage() {
                                                                 <button
                                                                     className="btn btn-sm btn-warning"
                                                                     style={{ whiteSpace: "nowrap" }}
-                                                                    onClick={() => openEditModal(patient)}
+                                                                    onClick={() => openEditModal(patient, record)}
                                                                     title="Chỉnh sửa thông tin bệnh nhân"
                                                                 >
                                                                     <i className="fas fa-edit me-1"></i>
@@ -981,6 +1077,7 @@ function PatientsPage() {
                                                 aria-label="Close"
                                                 onClick={() => {
                                                     setShowCreateModal(false);
+                                                    setEditingPrescriptionId(null);
                                                     setDetectedExistingPatient(null);
                                                 }}
                                             >
@@ -1044,6 +1141,7 @@ function PatientsPage() {
                                                                 className="btn btn-xs btn-outline-secondary text-nowrap"
                                                                 onClick={() => {
                                                                     setEditingPatientId(null);
+                                                                    setEditingPrescriptionId(null);
                                                                     setModalMode("create");
                                                                 }}
                                                                 title="Hủy liên kết với mã BN này để lưu thành hồ sơ bệnh nhân mới độc lập"
@@ -1380,6 +1478,7 @@ function PatientsPage() {
                                                         className="btn btn-secondary"
                                                         onClick={() => {
                                                             setShowCreateModal(false);
+                                                            setEditingPrescriptionId(null);
                                                             setDetectedExistingPatient(null);
                                                         }}
                                                     >
