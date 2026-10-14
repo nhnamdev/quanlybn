@@ -52,7 +52,7 @@ function PatientsPage() {
 
     const initialFormState = {
         name: "",
-        gender: "M",
+        gender: "F",
         dob: "2000-01-01",
         address: "",
         phone_number: "",
@@ -486,7 +486,7 @@ function PatientsPage() {
         // Kế thừa thông tin cá nhân và sinh hiệu gần nhất để không bị mất khi nhân viên chỉ tạo nhanh lần khám
         setFormData({
             name: patient.name || "",
-            gender: patient.gender || "M",
+            gender: patient.gender || "F",
             dob: patient.dob || "2000-01-01",
             address: patient.address || "",
             phone_number: patient.phone_number || "",
@@ -539,7 +539,7 @@ function PatientsPage() {
 
         setFormData({
             name: patient.name || "",
-            gender: patient.gender || "M",
+            gender: patient.gender || "F",
             dob: patient.dob || "2000-01-01",
             address: patient.address || "",
             phone_number: patient.phone_number || "",
@@ -1179,8 +1179,8 @@ function PatientsPage() {
                                                                 value={formData.gender}
                                                                 onChange={onInputChange}
                                                             >
-                                                                <option value="M">Nam</option>
                                                                 <option value="F">Nữ</option>
+                                                                <option value="M">Nam</option>
                                                             </select>
                                                         </div>
                                                         <div className="col-6 col-md-3">
